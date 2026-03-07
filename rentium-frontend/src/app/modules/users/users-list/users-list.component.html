@@ -1,0 +1,88 @@
+<div>
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Users</h1>
+    <button (click)="openInvite()" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium" [style.background-color]="themeService.accent">
+      <i class="fas fa-user-plus"></i> Invite User
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="flex items-center justify-center py-20">
+    <i class="fas fa-spinner fa-spin text-2xl" [style.color]="themeService.accent"></i>
+  </div>
+
+  <div *ngIf="!loading" class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50">
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden sm:table-cell">Email</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Role</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Status</th>
+            <th class="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of users" class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium" [style.background-color]="themeService.accent">{{ u.name?.charAt(0) || '?' }}</div>
+                <span class="font-medium text-gray-800 dark:text-gray-100">{{ u.name }}</span>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden sm:table-cell">{{ u.email }}</td>
+            <td class="px-4 py-3"><span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getRoleClasses(u.role)">{{ u.role }}</span></td>
+            <td class="px-4 py-3">
+              <span *ngIf="u.isApproved === false" class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">Pending</span>
+              <span *ngIf="u.isApproved !== false && u.isActive" class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Active</span>
+              <span *ngIf="u.isApproved !== false && !u.isActive" class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Inactive</span>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <div *ngIf="u.isApproved === false" class="flex justify-end gap-2">
+                <button (click)="approve(u._id)" class="px-3 py-1 rounded text-xs font-medium text-white" [style.background-color]="themeService.accent">Approve</button>
+                <button (click)="reject(u._id)" class="px-3 py-1 rounded text-xs font-medium border border-red-300 text-red-600 dark:border-red-800 dark:text-red-400">Reject</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="users.length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
+      <i class="fas fa-user-friends text-3xl mb-3 block"></i><p>No users found</p>
+    </div>
+  </div>
+
+  <!-- Invite Modal -->
+  <div *ngIf="showInvite" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Invite User</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email *</label>
+          <input type="email" [(ngModel)]="inviteForm.email" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
+          <select [(ngModel)]="inviteForm.role" (change)="onRoleChange()" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none">
+            <option *ngFor="let r of roles" [value]="r">{{ r | titlecase }}</option>
+          </select>
+        </div>
+        <div *ngIf="permissionsData">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Permissions</label>
+          <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+            <label *ngFor="let p of permissionsData.all" class="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input type="checkbox" [checked]="inviteForm.permissions.includes(p)" (change)="togglePermission(p)" class="rounded border-gray-300 dark:border-slate-600" />
+              {{ p }}
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 mt-6">
+        <button (click)="showInvite = false" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-sm text-gray-700 dark:text-gray-300">Cancel</button>
+        <button (click)="invite()" [disabled]="inviting" class="px-6 py-2 rounded-lg text-white text-sm font-medium" [style.background-color]="themeService.accent" [class.opacity-50]="inviting">
+          {{ inviting ? 'Sending...' : 'Send Invite' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
