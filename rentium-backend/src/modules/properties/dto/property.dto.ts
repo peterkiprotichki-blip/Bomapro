@@ -1,5 +1,6 @@
 import { IsString, IsNotEmpty, IsOptional, IsEnum, IsNumber, IsArray } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
+import { Transform } from 'class-transformer';
 import { PropertyType, PropertyStatus } from '../schemas/property.schema';
 
 export class CreatePropertyDto {
@@ -63,8 +64,8 @@ export class CreatePropertyDto {
   @IsOptional()
   unitNumber?: string;
 
-  @IsString()
   @IsOptional()
+  @Transform(({ value }) => (value === undefined || value === null || value === '' ? '' : String(value)))
   floor?: string;
 
   @IsString()

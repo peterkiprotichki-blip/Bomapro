@@ -117,7 +117,7 @@ export class RentiumUser extends BaseDocument {
   @Prop({ default: false })
   isApproved: boolean;
 
-  @Prop({ type: String, enum: ['credentials', 'google'], default: 'credentials' })
+  @Prop({ type: String, enum: ['credentials', 'google', 'local'], default: 'credentials' })
   authProvider: string;
 
   @Prop({ type: [String], default: [] })
@@ -128,5 +128,14 @@ export class RentiumUser extends BaseDocument {
 }
 
 export const RentiumUserSchema = SchemaFactory.createForClass(RentiumUser);
+
+// Support legacy records that still store authProvider as "local".
+RentiumUserSchema.pre('save', function normalizeLegacyAuthProvider(next) {
+  if (this.authProvider === 'local') {
+    this.authProvider = 'credentials';
+  }
+  next();
+});
+
 RentiumUserSchema.index({ email: 1 }, { unique: true });
 RentiumUserSchema.index({ googleId: 1 }, { sparse: true });

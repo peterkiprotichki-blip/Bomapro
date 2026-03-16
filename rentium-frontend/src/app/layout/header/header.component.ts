@@ -16,6 +16,7 @@ export class HeaderComponent {
   showColorPicker = false;
   showTenantMenu = false;
   switchingTenant = false;
+  tenantSwitchError = '';
 
   constructor(
     public authService: AuthService,
@@ -28,20 +29,28 @@ export class HeaderComponent {
   }
 
   switchTenant(tenant: Tenant): void {
-    if (tenant._id === this.authService.getActiveTenantId()) {
+    const tenantId = (tenant as any)?._id || (tenant as any)?.id || '';
+    if (!tenantId) {
+      this.tenantSwitchError = 'This organization cannot be switched right now. Please refresh and try again.';
+      return;
+    }
+
+    if (tenantId === this.authService.getActiveTenantId()) {
       this.showTenantMenu = false;
       return;
     }
+
+    this.tenantSwitchError = '';
     this.switchingTenant = true;
-    this.authService.switchTenant(tenant._id).subscribe({
+    this.authService.switchTenant(tenantId).subscribe({
       next: () => {
         this.switchingTenant = false;
         this.showTenantMenu = false;
         window.location.reload();
       },
-      error: () => {
+      error: (err) => {
         this.switchingTenant = false;
-        this.showTenantMenu = false;
+        this.tenantSwitchError = err?.error?.message || 'Unable to switch organization. Please try again.';
       },
     });
   }
@@ -51,6 +60,10 @@ export class HeaderComponent {
     const activeId = this.authService.getActiveTenantId();
     const active = tenants.find((t) => t._id === activeId);
     return active?.name || 'No Organization';
+  }
+
+  canSwitchTenants(tenants: Tenant[] | null): boolean {
+    return (tenants?.length || 0) > 1;
   }
 
   logout(): void {

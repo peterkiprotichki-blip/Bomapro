@@ -26,21 +26,23 @@ export class PropertiesService {
     return this.propertyRepository.findPaginated({ page, limit, filter });
   }
 
-  async findById(id: string) {
+  async findById(id: string, tenantId: string) {
     const property = await this.propertyRepository.findById(id);
-    if (!property || property.isDeleted) {
+    if (!property || property.isDeleted || property.tenantId !== tenantId) {
       throw new NotFoundException('Property not found');
     }
     return property;
   }
 
-  async update(id: string, dto: UpdatePropertyDto) {
+  async update(id: string, tenantId: string, dto: UpdatePropertyDto) {
+    await this.findById(id, tenantId);
     const property = await this.propertyRepository.update(id, dto as any);
     if (!property) throw new NotFoundException('Property not found');
     return property;
   }
 
-  async remove(id: string) {
+  async remove(id: string, tenantId: string) {
+    await this.findById(id, tenantId);
     return this.propertyRepository.delete(id);
   }
 

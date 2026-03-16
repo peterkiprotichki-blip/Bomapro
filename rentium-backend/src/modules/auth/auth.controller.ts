@@ -28,6 +28,14 @@ export class AuthController {
     return this.authService.inviteUser(dto, tenantId);
   }
 
+  @Post('users')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  createUser(@Body() dto: InviteUserDto, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.authService.inviteUser(dto, tenantId);
+  }
+
   @Post('set-password')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -74,15 +82,15 @@ export class AuthController {
   @Put('users/:id/approve')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  approveUser(@Param('id') id: string) {
-    return this.authService.approveUser(id);
+  approveUser(@Param('id') id: string, @Req() req) {
+    return this.authService.approveUser(id, req.user);
   }
 
   @Put('users/:id/reject')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  rejectUser(@Param('id') id: string) {
-    return this.authService.rejectUser(id);
+  rejectUser(@Param('id') id: string, @Req() req) {
+    return this.authService.rejectUser(id, req.user);
   }
 
   @Get('profile')
@@ -122,36 +130,36 @@ export class AuthController {
   @Get('users/search-all')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  searchAllUsers(@Query('q') query: string) {
-    return this.authService.searchAllUsers(query);
+  searchAllUsers(@Query('q') query: string, @Req() req) {
+    return this.authService.searchAllUsers(query, req.user);
   }
 
   @Get('tenants/:tenantId/members')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  getTenantMembers(@Param('tenantId') tenantId: string) {
-    return this.authService.getTenantMembers(tenantId);
+  getTenantMembers(@Param('tenantId') tenantId: string, @Req() req) {
+    return this.authService.getTenantMembers(tenantId, req.user);
   }
 
   @Get('users/:id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  getUserById(@Param('id') id: string) {
-    return this.authService.getUserById(id);
+  getUserById(@Param('id') id: string, @Req() req) {
+    return this.authService.getUserById(id, req.user);
   }
 
   @Put('users/:id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
-    return this.authService.updateUser(id, dto);
+  updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto, @Req() req) {
+    return this.authService.updateUser(id, dto, req.user);
   }
 
   @Delete('users/:id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  deleteUser(@Param('id') id: string) {
-    return this.authService.deleteUser(id);
+  deleteUser(@Param('id') id: string, @Req() req) {
+    return this.authService.deleteUser(id, req.user);
   }
 
   @Post('switch-tenant')
@@ -164,14 +172,14 @@ export class AuthController {
   @Post('users/:id/add-to-tenant')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  addUserToTenant(@Param('id') userId: string, @Body('tenantId') tenantId: string) {
-    return this.authService.addUserToTenant(userId, tenantId);
+  addUserToTenant(@Param('id') userId: string, @Body('tenantId') tenantId: string, @Req() req) {
+    return this.authService.addUserToTenant(userId, tenantId, req.user);
   }
 
   @Post('users/:id/remove-from-tenant')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  removeUserFromTenant(@Param('id') userId: string, @Body('tenantId') tenantId: string) {
-    return this.authService.removeUserFromTenant(userId, tenantId);
+  removeUserFromTenant(@Param('id') userId: string, @Body('tenantId') tenantId: string, @Req() req) {
+    return this.authService.removeUserFromTenant(userId, tenantId, req.user);
   }
 }

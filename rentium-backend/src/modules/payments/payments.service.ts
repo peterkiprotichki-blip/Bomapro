@@ -33,9 +33,9 @@ export class PaymentsService {
     return this.paymentRepository.findPaginated({ page, limit, filter });
   }
 
-  async findById(id: string) {
+  async findById(id: string, tenantId: string) {
     const payment = await this.paymentRepository.findById(id);
-    if (!payment || payment.isDeleted) {
+    if (!payment || payment.isDeleted || payment.tenantId !== tenantId) {
       throw new NotFoundException('Payment not found');
     }
     return payment;
@@ -57,19 +57,22 @@ export class PaymentsService {
     return this.paymentRepository.findByDateRange(tenantId, new Date(startDate), new Date(endDate));
   }
 
-  async markCompleted(id: string) {
+  async markCompleted(id: string, tenantId: string) {
+    await this.findById(id, tenantId);
     const payment = await this.paymentRepository.update(id, { status: 'completed' } as any);
     if (!payment) throw new NotFoundException('Payment not found');
     return payment;
   }
 
-  async update(id: string, dto: UpdatePaymentDto) {
+  async update(id: string, tenantId: string, dto: UpdatePaymentDto) {
+    await this.findById(id, tenantId);
     const payment = await this.paymentRepository.update(id, dto as any);
     if (!payment) throw new NotFoundException('Payment not found');
     return payment;
   }
 
-  async remove(id: string) {
+  async remove(id: string, tenantId: string) {
+    await this.findById(id, tenantId);
     return this.paymentRepository.delete(id);
   }
 

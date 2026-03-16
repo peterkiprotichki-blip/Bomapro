@@ -1,5 +1,5 @@
 import {
-  Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req, Inject, forwardRef,
+  Controller, Get, Post, Put, Delete, Body, Param, UseGuards, Req, Inject, forwardRef, ForbiddenException,
 } from '@nestjs/common';
 import { TenantsService } from './tenants.service';
 import { CreateTenantDto, UpdateTenantDto } from './dto/tenant.dto';
@@ -23,7 +23,7 @@ export class TenantsController {
   async create(@Body() dto: CreateTenantDto, @Req() req) {
     const tenant = await this.tenantsService.create(dto, req.user.sub);
     const tenantId = tenant._id.toString();
-    await this.authService.addUserToTenant(req.user.sub, tenantId);
+    await this.authService.addUserToTenant(req.user.sub, tenantId, req.user);
     return tenant;
   }
 
@@ -42,12 +42,18 @@ export class TenantsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string, @Req() req) {
+    if (req.user.role !== 'super_admin' && !(req.user.tenantIds || []).includes(id)) {
+      throw new ForbiddenException('You do not have access to this organization');
+    }
     return this.tenantsService.findById(id);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateTenantDto) {
+  update(@Param('id') id: string, @Body() dto: UpdateTenantDto, @Req() req) {
+    if (req.user.role !== 'super_admin' && !(req.user.tenantIds || []).includes(id)) {
+      throw new ForbiddenException('You do not have access to this organization');
+    }
     return this.tenantsService.update(id, dto);
   }
 

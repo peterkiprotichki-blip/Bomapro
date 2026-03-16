@@ -37,7 +37,7 @@ async function seed() {
     isApproved: true,
     isActive: true,
     isDeleted: false,
-    authProvider: 'local',
+    authProvider: 'credentials',
     tenantIds: [],
     activeTenantId: '',
     createdAt: new Date(),

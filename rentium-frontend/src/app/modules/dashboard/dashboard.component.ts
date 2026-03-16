@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReportsService } from '../../shared/services/reports/reports.service';
 import { ThemeService } from '../../shared/services/theme/theme.service';
 import { DashboardStats } from '../../shared/interfaces/models';
+import { AuthService } from '../../shared/services/auth/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,6 +16,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private reportsService: ReportsService,
     public themeService: ThemeService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -27,5 +29,14 @@ export class DashboardComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  get activeTenant() {
+    const id = this.authService.getActiveTenantId();
+    return this.authService.getTenants().find(t => t._id === id) || null;
+  }
+
+  get tenantCount(): number {
+    return this.authService.getTenants().length;
   }
 }

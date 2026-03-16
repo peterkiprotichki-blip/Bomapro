@@ -50,17 +50,20 @@ export class DamagesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.damagesService.findById(id);
+  findOne(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.damagesService.findById(id, tenantId);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateDamageDto) {
-    return this.damagesService.update(id, dto);
+  update(@Param('id') id: string, @Body() dto: UpdateDamageDto, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.damagesService.update(id, tenantId, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.damagesService.remove(id);
+  remove(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.damagesService.remove(id, tenantId);
   }
 }

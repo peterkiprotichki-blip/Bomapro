@@ -55,7 +55,7 @@
               <p class="font-medium text-gray-800 dark:text-gray-100">{{ prop.name }}</p>
               <p class="text-xs text-gray-500 dark:text-gray-400" *ngIf="prop.unitNumber">Unit {{ prop.unitNumber }}</p>
             </td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden sm:table-cell capitalize">{{ prop.type?.replace('_', ' ') }}</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden sm:table-cell capitalize">{{ prop.type.replace('_', ' ') }}</td>
             <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden md:table-cell">{{ prop.address }}, {{ prop.city }}</td>
             <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{{ prop.currency || 'KES' }} {{ prop.rentAmount | number }}</td>
             <td class="px-4 py-3">

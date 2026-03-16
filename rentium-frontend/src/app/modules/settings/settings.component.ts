@@ -20,6 +20,15 @@ export class SettingsComponent {
 
   get user() { return this.authService.getUser(); }
 
+  get activeTenant() {
+    const activeTenantId = this.authService.getActiveTenantId();
+    return this.authService.getTenants().find((tenant) => tenant._id === activeTenantId) || null;
+  }
+
+  get tenantCount(): number {
+    return this.authService.getTenants().length;
+  }
+
   toggleDarkMode(): void { this.themeService.toggleTheme(); }
 
   setAccentColor(color: string): void { this.themeService.setAccentColor(color); }

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, NotFoundException, BadRequestException, Inject, forwardRef, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
@@ -7,6 +7,7 @@ import * as crypto from 'crypto';
 import { RentiumUser, DEFAULT_ADMIN_PERMISSIONS, DEFAULT_AGENT_PERMISSIONS, DEFAULT_MANAGER_PERMISSIONS, RentiumUserRole, ALL_PERMISSIONS } from './schemas/rentium-user.schema';
 import { RegisterDto, LoginDto, UpdateUserDto, InviteUserDto } from './dto/auth.dto';
 import { EmailService } from './email.service';
+import { TenantsService } from '../tenants/tenants.service';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,7 @@ export class AuthService {
     @InjectModel(RentiumUser.name) private userModel: Model<RentiumUser>,
     private jwtService: JwtService,
     private emailService: EmailService,
+    @Inject(forwardRef(() => TenantsService)) private tenantsService: TenantsService,
   ) {}
 
   async register(dto: RegisterDto, tenantId?: string) {
@@ -58,17 +60,25 @@ export class AuthService {
       throw new UnauthorizedException('Account is deactivated');
     }
 
+    const { tenants, activeTenantId } = await this.getTenantContext(user);
     const token = this.generateToken(user);
     return {
       user: this.sanitizeUser(user),
       token,
+      tenants,
+      activeTenantId,
     };
   }
 
   async getProfile(userId: string) {
     const user = await this.userModel.findById(userId);
     if (!user) throw new UnauthorizedException('User not found');
-    return this.sanitizeUser(user);
+    const { tenants, activeTenantId } = await this.getTenantContext(user);
+    return {
+      ...this.sanitizeUser(user),
+      tenants,
+      activeTenantId,
+    };
   }
 
   async getUsers(page = 1, limit = 20, search?: string, tenantId?: string) {
@@ -98,15 +108,17 @@ export class AuthService {
     };
   }
 
-  async getUserById(id: string) {
+  async getUserById(id: string, requester: any) {
     const user = await this.userModel.findById(id).select('-password');
     if (!user) throw new NotFoundException('User not found');
+    this.assertUserAccessible(user, requester);
     return user;
   }
 
-  async updateUser(id: string, dto: UpdateUserDto) {
+  async updateUser(id: string, dto: UpdateUserDto, requester: any) {
     const user = await this.userModel.findById(id);
     if (!user) throw new NotFoundException('User not found');
+    this.assertUserAccessible(user, requester);
 
     if (dto.email && dto.email !== user.email) {
       const existing = await this.userModel.findOne({ email: dto.email });
@@ -117,14 +129,30 @@ export class AuthService {
       dto.password = await bcrypt.hash(dto.password, 10);
     }
 
+    if (dto.role && !dto.permissions) {
+      dto.permissions = this.getDefaultPermissions(dto.role);
+    }
+
+    if (dto.tenantIds) {
+      user.tenantIds = [...new Set(dto.tenantIds.filter(Boolean))];
+      delete dto.tenantIds;
+    }
+
+    if (dto.activeTenantId !== undefined) {
+      user.activeTenantId = dto.activeTenantId;
+      delete dto.activeTenantId;
+    }
+
     Object.assign(user, dto);
+    await this.ensureActiveTenant(user);
     await user.save();
     return this.sanitizeUser(user);
   }
 
-  async deleteUser(id: string) {
+  async deleteUser(id: string, requester: any) {
     const user = await this.userModel.findById(id);
     if (!user) throw new NotFoundException('User not found');
+    this.assertUserAccessible(user, requester);
 
     user.isDeleted = true;
     user.isActive = false;
@@ -134,28 +162,51 @@ export class AuthService {
   }
 
   async inviteUser(dto: InviteUserDto, tenantId: string) {
+    const requestedTenantIds = Array.isArray(dto.tenantIds) ? dto.tenantIds.filter(Boolean) : [];
+    const normalizedTenantIds = [...new Set([...(tenantId ? [tenantId] : []), ...requestedTenantIds])];
     const existing = await this.userModel.findOne({ email: dto.email });
     if (existing) {
-      if (!existing.tenantIds.includes(tenantId)) {
-        existing.tenantIds.push(tenantId);
-        await existing.save();
+      for (const id of normalizedTenantIds) {
+        if (!existing.tenantIds.includes(id)) {
+          existing.tenantIds.push(id);
+        }
       }
+
+      if (dto.role) {
+        existing.role = dto.role;
+        if (!dto.permissions) {
+          existing.permissions = this.getDefaultPermissions(dto.role);
+        }
+      }
+
+      if (dto.permissions) {
+        existing.permissions = dto.permissions;
+      }
+
+      if (dto.password) {
+        existing.password = await bcrypt.hash(dto.password, 10);
+      }
+
+      await this.ensureActiveTenant(existing);
+      await existing.save();
       return this.sanitizeUser(existing);
     }
 
     const role = dto.role || RentiumUserRole.AGENT;
     const permissions = dto.permissions || this.getDefaultPermissions(role);
+    const hashedPassword = dto.password ? await bcrypt.hash(dto.password, 10) : '';
     const user = new this.userModel({
       name: dto.name,
       email: dto.email,
-      password: '',
+      password: hashedPassword,
       role,
       permissions,
       isEmailVerified: true,
       isApproved: true,
-      tenantIds: [tenantId],
-      activeTenantId: tenantId,
+      tenantIds: normalizedTenantIds,
+      activeTenantId: normalizedTenantIds[0] || '',
     });
+    await this.ensureActiveTenant(user);
     await user.save();
     return this.sanitizeUser(user);
   }
@@ -255,18 +306,20 @@ export class AuthService {
     if (googleUser.picture) user.avatar = googleUser.picture;
     await user.save();
 
+    const { tenants, activeTenantId } = await this.getTenantContext(user);
     const token = this.generateToken(user);
     return {
       token,
       user: this.sanitizeUser(user),
-      tenants: user.tenantIds || [],
-      activeTenantId: user.activeTenantId || '',
+      tenants,
+      activeTenantId,
     };
   }
 
-  async approveUser(id: string) {
+  async approveUser(id: string, requester: any) {
     const user = await this.userModel.findById(id);
     if (!user) throw new NotFoundException('User not found');
+    this.assertUserAccessible(user, requester);
 
     user.isApproved = true;
     user.isActive = true;
@@ -277,9 +330,10 @@ export class AuthService {
     return this.sanitizeUser(user);
   }
 
-  async rejectUser(id: string) {
+  async rejectUser(id: string, requester: any) {
     const user = await this.userModel.findById(id);
     if (!user) throw new NotFoundException('User not found');
+    this.assertUserAccessible(user, requester);
 
     user.isApproved = false;
     user.isActive = false;
@@ -288,7 +342,7 @@ export class AuthService {
     return this.sanitizeUser(user);
   }
 
-  async searchAllUsers(query: string) {
+  async searchAllUsers(query: string, requester: any) {
     const filter: any = {
       isDeleted: { $ne: true },
       $or: [
@@ -296,10 +350,15 @@ export class AuthService {
         { email: { $regex: query, $options: 'i' } },
       ],
     };
+
+    if (requester.role !== RentiumUserRole.SUPER_ADMIN) {
+      filter.tenantIds = requester.tenantId;
+    }
     return this.userModel.find(filter).select('-password').limit(20).sort({ name: 1 });
   }
 
-  async getTenantMembers(tenantId: string) {
+  async getTenantMembers(tenantId: string, requester: any) {
+    this.assertTenantAccess(tenantId, requester);
     return this.userModel.find({ tenantIds: tenantId, isDeleted: { $ne: true } }).select('-password');
   }
 
@@ -307,43 +366,45 @@ export class AuthService {
     const user = await this.userModel.findById(userId);
     if (!user) throw new NotFoundException('User not found');
 
-    if (!user.tenantIds.includes(tenantId)) {
+    const accessibleTenants = await this.resolveAccessibleTenants(user);
+    const canAccessTenant = accessibleTenants.some((tenant) => tenant._id.toString() === tenantId);
+    if (!canAccessTenant) {
       throw new BadRequestException('User does not belong to this tenant');
     }
 
     user.activeTenantId = tenantId;
     await user.save();
 
+    const { tenants, activeTenantId } = await this.getTenantContext(user);
     const token = this.generateToken(user);
     return {
       token,
       user: this.sanitizeUser(user),
-      activeTenantId: tenantId,
+      tenants,
+      activeTenantId,
     };
   }
 
-  async addUserToTenant(userId: string, tenantId: string) {
+  async addUserToTenant(userId: string, tenantId: string, requester: any) {
+    this.assertTenantAccess(tenantId, requester);
     const user = await this.userModel.findById(userId);
     if (!user) throw new NotFoundException('User not found');
 
     if (!user.tenantIds.includes(tenantId)) {
       user.tenantIds.push(tenantId);
     }
-    if (!user.activeTenantId) {
-      user.activeTenantId = tenantId;
-    }
+    await this.ensureActiveTenant(user);
     await user.save();
     return this.sanitizeUser(user);
   }
 
-  async removeUserFromTenant(userId: string, tenantId: string) {
+  async removeUserFromTenant(userId: string, tenantId: string, requester: any) {
+    this.assertTenantAccess(tenantId, requester);
     const user = await this.userModel.findById(userId);
     if (!user) throw new NotFoundException('User not found');
 
     user.tenantIds = user.tenantIds.filter((id) => id !== tenantId);
-    if (user.activeTenantId === tenantId) {
-      user.activeTenantId = user.tenantIds[0] || '';
-    }
+    await this.ensureActiveTenant(user);
     await user.save();
     return this.sanitizeUser(user);
   }
@@ -371,9 +432,66 @@ export class AuthService {
     });
   }
 
+  private async resolveAccessibleTenants(user: RentiumUser) {
+    if (user.role === RentiumUserRole.SUPER_ADMIN) {
+      return this.tenantsService.findAll();
+    }
+
+    if (!user.tenantIds?.length) {
+      return [];
+    }
+
+    return this.tenantsService.findByIds(user.tenantIds);
+  }
+
+  private async ensureActiveTenant(user: RentiumUser) {
+    const accessibleTenants = await this.resolveAccessibleTenants(user);
+    const accessibleIds = accessibleTenants.map((tenant) => tenant._id.toString());
+
+    if (!accessibleIds.length) {
+      user.activeTenantId = '';
+      return { tenants: accessibleTenants, activeTenantId: '' };
+    }
+
+    if (!accessibleIds.includes(user.activeTenantId)) {
+      user.activeTenantId = accessibleIds[0];
+    }
+
+    return { tenants: accessibleTenants, activeTenantId: user.activeTenantId };
+  }
+
+  private async getTenantContext(user: RentiumUser) {
+    const { tenants, activeTenantId } = await this.ensureActiveTenant(user);
+    if (user.isModified?.() || user.activeTenantId !== activeTenantId) {
+      await user.save();
+    }
+
+    return { tenants, activeTenantId };
+  }
+
   private sanitizeUser(user: RentiumUser) {
     const obj = user.toObject();
     delete obj.password;
     return obj;
+  }
+
+  private assertTenantAccess(tenantId: string, requester: any) {
+    if (requester.role === RentiumUserRole.SUPER_ADMIN) {
+      return;
+    }
+
+    if (requester.tenantId !== tenantId) {
+      throw new ForbiddenException('You do not have access to this organization');
+    }
+  }
+
+  private assertUserAccessible(user: any, requester: any) {
+    if (requester.role === RentiumUserRole.SUPER_ADMIN) {
+      return;
+    }
+
+    if (!user.tenantIds?.includes(requester.tenantId)) {
+      throw new ForbiddenException('You do not have access to this user');
+    }
   }
 }

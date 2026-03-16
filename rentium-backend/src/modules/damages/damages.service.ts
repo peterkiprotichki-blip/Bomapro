@@ -30,9 +30,9 @@ export class DamagesService {
     return this.damageRepository.findPaginated({ page, limit, filter });
   }
 
-  async findById(id: string) {
+  async findById(id: string, tenantId: string) {
     const damage = await this.damageRepository.findById(id);
-    if (!damage || damage.isDeleted) {
+    if (!damage || damage.isDeleted || damage.tenantId !== tenantId) {
       throw new NotFoundException('Damage report not found');
     }
     return damage;
@@ -46,7 +46,8 @@ export class DamagesService {
     return this.damageRepository.findByPropertyTenant(tenantId, propertyTenantId);
   }
 
-  async update(id: string, dto: UpdateDamageDto) {
+  async update(id: string, tenantId: string, dto: UpdateDamageDto) {
+    await this.findById(id, tenantId);
     const updateData: any = { ...dto };
     if (dto.status === 'assessed') updateData.assessedDate = new Date();
     if (dto.status === 'repaired') updateData.repairedDate = new Date();
@@ -55,7 +56,8 @@ export class DamagesService {
     return damage;
   }
 
-  async remove(id: string) {
+  async remove(id: string, tenantId: string) {
+    await this.findById(id, tenantId);
     return this.damageRepository.delete(id);
   }
 

@@ -27,9 +27,9 @@ export class PropertyTenantsService {
     return this.propertyTenantRepository.findPaginated({ page, limit, filter });
   }
 
-  async findById(id: string) {
+  async findById(id: string, tenantId: string) {
     const tenant = await this.propertyTenantRepository.findById(id);
-    if (!tenant || tenant.isDeleted) {
+    if (!tenant || tenant.isDeleted || tenant.tenantId !== tenantId) {
       throw new NotFoundException('Tenant not found');
     }
     return tenant;
@@ -39,13 +39,15 @@ export class PropertyTenantsService {
     return this.propertyTenantRepository.findByProperty(tenantId, propertyId);
   }
 
-  async update(id: string, dto: UpdatePropertyTenantDto) {
+  async update(id: string, tenantId: string, dto: UpdatePropertyTenantDto) {
+    await this.findById(id, tenantId);
     const tenant = await this.propertyTenantRepository.update(id, dto as any);
     if (!tenant) throw new NotFoundException('Tenant not found');
     return tenant;
   }
 
-  async remove(id: string) {
+  async remove(id: string, tenantId: string) {
+    await this.findById(id, tenantId);
     return this.propertyTenantRepository.delete(id);
   }
 

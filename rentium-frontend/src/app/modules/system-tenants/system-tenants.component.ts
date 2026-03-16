@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { TenantsService } from '../../shared/services/tenants/tenants.service';
 import { ThemeService } from '../../shared/services/theme/theme.service';
-import { Tenant } from '../../shared/interfaces/models';
+import { AuthService } from '../../shared/services/auth/auth.service';
+import { UsersService } from '../../shared/services/users/users.service';
+import { Tenant, RentiumUser } from '../../shared/interfaces/models';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-system-tenants',
@@ -12,14 +15,23 @@ export class SystemTenantsComponent implements OnInit {
   tenants: Tenant[] = [];
   loading = true;
   showForm = false;
+  showMembers = false;
   editing: Tenant | null = null;
+  selectedTenant: Tenant | null = null;
   saving = false;
+  memberActionInProgress = false;
+  searchingUsers = false;
   form: Partial<Tenant> = {};
+  tenantMembers: Record<string, RentiumUser[]> = {};
+  memberSearch = '';
+  searchResults: RentiumUser[] = [];
 
   plans = ['free', 'basic', 'pro', 'enterprise'];
 
   constructor(
     private tenantsService: TenantsService,
+    private usersService: UsersService,
+    private authService: AuthService,
     public themeService: ThemeService,
   ) {}
 
@@ -28,7 +40,12 @@ export class SystemTenantsComponent implements OnInit {
   loadTenants(): void {
     this.loading = true;
     this.tenantsService.getAll().subscribe({
-      next: (t) => { this.tenants = t; this.loading = false; },
+      next: (t) => {
+        this.tenants = t;
+        this.authService.setTenantContext(t, this.authService.getActiveTenantId());
+        this.loading = false;
+        this.loadTenantMembers();
+      },
       error: () => { this.loading = false; },
     });
   }
@@ -54,6 +71,108 @@ export class SystemTenantsComponent implements OnInit {
   deleteTenant(id: string): void {
     if (!confirm('Delete this organization?')) return;
     this.tenantsService.delete(id).subscribe(() => this.loadTenants());
+  }
+
+  openMembers(tenant: Tenant): void {
+    this.selectedTenant = tenant;
+    this.memberSearch = '';
+    this.searchResults = [];
+    this.showMembers = true;
+
+    if (!this.tenantMembers[tenant._id]) {
+      this.usersService.getTenantMembers(tenant._id).subscribe((members) => {
+        this.tenantMembers[tenant._id] = members;
+      });
+    }
+  }
+
+  searchUsers(): void {
+    if (!this.memberSearch.trim()) {
+      this.searchResults = [];
+      return;
+    }
+
+    this.searchingUsers = true;
+    this.usersService.searchAll(this.memberSearch).subscribe({
+      next: (users) => {
+        this.searchResults = users;
+        this.searchingUsers = false;
+      },
+      error: () => {
+        this.searchingUsers = false;
+      },
+    });
+  }
+
+  addUserToTenant(user: RentiumUser): void {
+    if (!this.selectedTenant) {
+      return;
+    }
+
+    this.memberActionInProgress = true;
+    this.usersService.addToTenant(user._id, this.selectedTenant._id).subscribe({
+      next: (updatedUser) => {
+        this.memberActionInProgress = false;
+        const members = this.getMembers(this.selectedTenant!._id);
+        if (!members.some((member) => member._id === updatedUser._id)) {
+          this.tenantMembers[this.selectedTenant!._id] = [updatedUser, ...members];
+        }
+        this.searchResults = this.searchResults.filter((result) => result._id !== updatedUser._id);
+      },
+      error: () => {
+        this.memberActionInProgress = false;
+      },
+    });
+  }
+
+  removeUserFromTenant(user: RentiumUser): void {
+    if (!this.selectedTenant || !confirm(`Remove ${user.name} from ${this.selectedTenant.name}?`)) {
+      return;
+    }
+
+    this.memberActionInProgress = true;
+    this.usersService.removeFromTenant(user._id, this.selectedTenant._id).subscribe({
+      next: () => {
+        this.memberActionInProgress = false;
+        this.tenantMembers[this.selectedTenant!._id] = this.getMembers(this.selectedTenant!._id).filter((member) => member._id !== user._id);
+      },
+      error: () => {
+        this.memberActionInProgress = false;
+      },
+    });
+  }
+
+  getMembers(tenantId: string): RentiumUser[] {
+    return this.tenantMembers[tenantId] || [];
+  }
+
+  isUserLinkedToSelectedTenant(user: RentiumUser): boolean {
+    if (!this.selectedTenant) {
+      return false;
+    }
+
+    return this.getMembers(this.selectedTenant._id).some((member) => member._id === user._id);
+  }
+
+  private loadTenantMembers(): void {
+    if (!this.tenants.length) {
+      this.tenantMembers = {};
+      return;
+    }
+
+    const requests = this.tenants.reduce<Record<string, ReturnType<UsersService['getTenantMembers']>>>((acc, tenant) => {
+      acc[tenant._id] = this.usersService.getTenantMembers(tenant._id);
+      return acc;
+    }, {});
+
+    forkJoin(requests).subscribe({
+      next: (members) => {
+        this.tenantMembers = members;
+      },
+      error: () => {
+        this.tenantMembers = {};
+      },
+    });
   }
 
   getPlanClasses(plan: string): string {

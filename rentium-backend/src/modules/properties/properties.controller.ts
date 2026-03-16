@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
-import { CreatePropertyDto, UpdatePropertyDto } from './dto/property.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
@@ -12,7 +11,7 @@ export class PropertiesController {
   constructor(private readonly propertiesService: PropertiesService) {}
 
   @Post()
-  create(@Body() dto: CreatePropertyDto, @Req() req) {
+  create(@Body() dto: any, @Req() req) {
     const tenantId = req.user?.tenantId || '';
     return this.propertiesService.create(dto, tenantId);
   }
@@ -37,17 +36,20 @@ export class PropertiesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.propertiesService.findById(id);
+  findOne(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.propertiesService.findById(id, tenantId);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdatePropertyDto) {
-    return this.propertiesService.update(id, dto);
+  update(@Param('id') id: string, @Body() dto: any, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.propertiesService.update(id, tenantId, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.propertiesService.remove(id);
+  remove(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.propertiesService.remove(id, tenantId);
   }
 }

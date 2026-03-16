@@ -41,17 +41,20 @@ export class PropertyTenantsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.propertyTenantsService.findById(id);
+  findOne(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.propertyTenantsService.findById(id, tenantId);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdatePropertyTenantDto) {
-    return this.propertyTenantsService.update(id, dto);
+  update(@Param('id') id: string, @Body() dto: UpdatePropertyTenantDto, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.propertyTenantsService.update(id, tenantId, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.propertyTenantsService.remove(id);
+  remove(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.propertyTenantsService.remove(id, tenantId);
   }
 }

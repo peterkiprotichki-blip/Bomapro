@@ -66,22 +66,26 @@ export class PaymentsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.paymentsService.findById(id);
+  findOne(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.paymentsService.findById(id, tenantId);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdatePaymentDto) {
-    return this.paymentsService.update(id, dto);
+  update(@Param('id') id: string, @Body() dto: UpdatePaymentDto, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.paymentsService.update(id, tenantId, dto);
   }
 
   @Put(':id/complete')
-  markCompleted(@Param('id') id: string) {
-    return this.paymentsService.markCompleted(id);
+  markCompleted(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.paymentsService.markCompleted(id, tenantId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.paymentsService.remove(id);
+  remove(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.paymentsService.remove(id, tenantId);
   }
 }

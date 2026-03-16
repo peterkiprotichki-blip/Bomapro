@@ -35,9 +35,9 @@ export class LeasesService {
     return this.leaseRepository.findPaginated({ page, limit, filter });
   }
 
-  async findById(id: string) {
+  async findById(id: string, tenantId: string) {
     const lease = await this.leaseRepository.findById(id);
-    if (!lease || lease.isDeleted) {
+    if (!lease || lease.isDeleted || lease.tenantId !== tenantId) {
       throw new NotFoundException('Lease not found');
     }
     return lease;
@@ -55,9 +55,8 @@ export class LeasesService {
     return this.leaseRepository.findExpiringSoon(tenantId, days);
   }
 
-  async activate(id: string) {
-    const lease = await this.leaseRepository.findById(id);
-    if (!lease) throw new NotFoundException('Lease not found');
+  async activate(id: string, tenantId: string) {
+    const lease = await this.findById(id, tenantId);
 
     const activeLease = await this.leaseRepository.findActiveByProperty(lease.propertyId);
     if (activeLease && activeLease._id.toString() !== id) {
@@ -67,9 +66,8 @@ export class LeasesService {
     return this.leaseRepository.update(id, { status: 'active' } as any);
   }
 
-  async terminate(id: string, reason: string) {
-    const lease = await this.leaseRepository.findById(id);
-    if (!lease) throw new NotFoundException('Lease not found');
+  async terminate(id: string, tenantId: string, reason: string) {
+    await this.findById(id, tenantId);
 
     return this.leaseRepository.update(id, {
       status: 'terminated',
@@ -78,13 +76,15 @@ export class LeasesService {
     } as any);
   }
 
-  async update(id: string, dto: UpdateLeaseDto) {
+  async update(id: string, tenantId: string, dto: UpdateLeaseDto) {
+    await this.findById(id, tenantId);
     const lease = await this.leaseRepository.update(id, dto as any);
     if (!lease) throw new NotFoundException('Lease not found');
     return lease;
   }
 
-  async remove(id: string) {
+  async remove(id: string, tenantId: string) {
+    await this.findById(id, tenantId);
     return this.leaseRepository.delete(id);
   }
 

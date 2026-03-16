@@ -54,27 +54,32 @@ export class LeasesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.leasesService.findById(id);
+  findOne(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.leasesService.findById(id, tenantId);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateLeaseDto) {
-    return this.leasesService.update(id, dto);
+  update(@Param('id') id: string, @Body() dto: UpdateLeaseDto, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.leasesService.update(id, tenantId, dto);
   }
 
   @Put(':id/activate')
-  activate(@Param('id') id: string) {
-    return this.leasesService.activate(id);
+  activate(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.leasesService.activate(id, tenantId);
   }
 
   @Put(':id/terminate')
-  terminate(@Param('id') id: string, @Body('reason') reason: string) {
-    return this.leasesService.terminate(id, reason);
+  terminate(@Param('id') id: string, @Body('reason') reason: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.leasesService.terminate(id, tenantId, reason);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.leasesService.remove(id);
+  remove(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.leasesService.remove(id, tenantId);
   }
 }

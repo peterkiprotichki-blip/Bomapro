@@ -25,14 +25,7 @@ export class AuthService {
         localStorage.setItem('rentium_token', res.token);
         localStorage.setItem('rentium_user', JSON.stringify(res.user));
         this.currentUser$.next(res.user);
-        if (res.tenants) {
-          localStorage.setItem('rentium_tenants', JSON.stringify(res.tenants));
-          this.tenants$.next(res.tenants);
-        }
-        if (res.activeTenantId) {
-          localStorage.setItem('rentium_active_tenant', res.activeTenantId);
-          this.activeTenantId$.next(res.activeTenantId);
-        }
+        this.setTenantContext(res.tenants || [], res.activeTenantId || '');
       }),
     );
   }
@@ -63,14 +56,7 @@ export class AuthService {
     localStorage.setItem('rentium_token', token);
     localStorage.setItem('rentium_user', JSON.stringify(user));
     this.currentUser$.next(user);
-    if (tenants.length) {
-      localStorage.setItem('rentium_tenants', JSON.stringify(tenants));
-      this.tenants$.next(tenants);
-    }
-    if (activeTenantId) {
-      localStorage.setItem('rentium_active_tenant', activeTenantId);
-      this.activeTenantId$.next(activeTenantId);
-    }
+    this.setTenantContext(tenants, activeTenantId);
   }
 
   approveUser(userId: string): Observable<{ message: string }> {
@@ -87,14 +73,7 @@ export class AuthService {
         localStorage.setItem('rentium_token', res.token);
         localStorage.setItem('rentium_user', JSON.stringify(res.user));
         this.currentUser$.next(res.user);
-        if (res.activeTenantId) {
-          localStorage.setItem('rentium_active_tenant', res.activeTenantId);
-          this.activeTenantId$.next(res.activeTenantId);
-        }
-        if (res.tenants) {
-          localStorage.setItem('rentium_tenants', JSON.stringify(res.tenants));
-          this.tenants$.next(res.tenants);
-        }
+        this.setTenantContext(res.tenants || this.tenants$.value || [], res.activeTenantId || tenantId || '');
       }),
     );
   }
@@ -146,18 +125,52 @@ export class AuthService {
     return user?.role === 'super_admin';
   }
 
+  setTenantContext(tenants: Tenant[], activeTenantId = ''): void {
+    const normalizedTenants = (tenants || []).map((tenant: any) => ({
+      ...tenant,
+      _id: this.normalizeTenantId(tenant?._id ?? tenant?.id),
+    })) as Tenant[];
+    const normalizedActiveTenantId = this.normalizeTenantId(activeTenantId);
+    const resolvedActiveTenantId = normalizedActiveTenantId && normalizedTenants.some((tenant) => tenant._id === normalizedActiveTenantId)
+      ? normalizedActiveTenantId
+      : normalizedTenants[0]?._id || '';
+
+    if (normalizedTenants.length) {
+      localStorage.setItem('rentium_tenants', JSON.stringify(normalizedTenants));
+    } else {
+      localStorage.removeItem('rentium_tenants');
+    }
+
+    if (resolvedActiveTenantId) {
+      localStorage.setItem('rentium_active_tenant', resolvedActiveTenantId);
+    } else {
+      localStorage.removeItem('rentium_active_tenant');
+    }
+
+    this.tenants$.next(normalizedTenants);
+    this.activeTenantId$.next(resolvedActiveTenantId);
+  }
+
+  private normalizeTenantId(value: any): string {
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return String(value);
+  }
+
   private loadUser(): void {
     const userJson = localStorage.getItem('rentium_user');
     if (userJson) {
       try { this.currentUser$.next(JSON.parse(userJson)); } catch (e) {}
     }
     const tenantsJson = localStorage.getItem('rentium_tenants');
+    let tenants: Tenant[] = [];
     if (tenantsJson) {
-      try { this.tenants$.next(JSON.parse(tenantsJson)); } catch (e) {}
+      try { tenants = JSON.parse(tenantsJson); } catch (e) {}
     }
-    const activeTenant = localStorage.getItem('rentium_active_tenant');
-    if (activeTenant) {
-      this.activeTenantId$.next(activeTenant);
-    }
+    this.setTenantContext(tenants, localStorage.getItem('rentium_active_tenant') || '');
   }
 }

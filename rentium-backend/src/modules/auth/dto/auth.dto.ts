@@ -36,6 +36,15 @@ export class InviteUserDto {
   @IsOptional()
   role?: RentiumUserRole;
 
+  @IsString()
+  @MinLength(6)
+  @IsOptional()
+  password?: string;
+
+  @IsArray()
+  @IsOptional()
+  tenantIds?: string[];
+
   @IsArray()
   @IsOptional()
   permissions?: Permission[];
@@ -84,4 +93,12 @@ export class UpdateUserDto {
   @IsArray()
   @IsOptional()
   permissions?: Permission[];
+
+  @IsArray()
+  @IsOptional()
+  tenantIds?: string[];
+
+  @IsString()
+  @IsOptional()
+  activeTenantId?: string;
 }
