@@ -1,13 +1,15 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PropertyTenantsService } from './property-tenants.service';
 import { PropertyTenantsController } from './property-tenants.controller';
 import { PropertyTenant, PropertyTenantSchema } from './schemas/property-tenant.schema';
 import { PropertyTenantRepository } from './repositories/property-tenant.repository';
+import { TenantPortalModule } from '../tenant-portal/tenant-portal.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: PropertyTenant.name, schema: PropertyTenantSchema }]),
+    forwardRef(() => TenantPortalModule),
   ],
   controllers: [PropertyTenantsController],
   providers: [PropertyTenantsService, PropertyTenantRepository],

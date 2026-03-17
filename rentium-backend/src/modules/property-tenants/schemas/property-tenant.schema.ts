@@ -50,6 +50,22 @@ export class PropertyTenant extends BaseDocument {
 
   @Prop({ type: Object, default: {} })
   metadata: Record<string, any>;
+
+  // ─── Tenant Portal Auth ───────────────────────────────────────────────────
+  @Prop({ required: false, default: '' })
+  portalPassword: string;
+
+  @Prop({ default: false })
+  portalPasswordSet: boolean;
+
+  @Prop({ required: false, default: '' })
+  portalInviteToken: string;
+
+  @Prop({ required: false })
+  portalInviteTokenExpiry: Date;
+
+  @Prop({ default: false })
+  portalInviteTokenUsed: boolean;
 }
 
 export const PropertyTenantSchema = SchemaFactory.createForClass(PropertyTenant);
@@ -57,3 +73,4 @@ PropertyTenantSchema.index({ tenantId: 1 });
 PropertyTenantSchema.index({ email: 1 });
 PropertyTenantSchema.index({ phone: 1 });
 PropertyTenantSchema.index({ idNumber: 1 });
+PropertyTenantSchema.index({ portalInviteToken: 1 });

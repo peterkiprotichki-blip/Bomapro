@@ -47,6 +47,14 @@ const routes: Routes = [
       { path: 'system-tenants', component: SystemTenantsComponent },
     ],
   },
+  // Tenant Portal — lazy-loaded, separate auth
+  {
+    path: 'tenant-portal',
+    loadChildren: () =>
+      import('./modules/tenant-portal/tenant-portal.module').then(
+        (m) => m.TenantPortalModule,
+      ),
+  },
   { path: '**', redirectTo: 'dashboard' },
 ];
 

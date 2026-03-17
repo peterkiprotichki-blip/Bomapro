@@ -83,6 +83,16 @@ export class Lease extends BaseDocument {
 
   @Prop({ required: false, default: '' })
   propertyTenantName: string;
+
+  // ─── Lease Signing ────────────────────────────────────────────────────────
+  @Prop({ default: false })
+  isSigned: boolean;
+
+  @Prop({ required: false })
+  signedAt: Date;
+
+  @Prop({ required: false, default: '' })
+  signedByPropertyTenantId: string;
 }
 
 export const LeaseSchema = SchemaFactory.createForClass(Lease);

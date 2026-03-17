@@ -1,17 +1,35 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Inject, forwardRef, Logger } from '@nestjs/common';
 import { PropertyTenantRepository } from './repositories/property-tenant.repository';
 import { CreatePropertyTenantDto, UpdatePropertyTenantDto } from './dto/property-tenant.dto';
+import { TenantPortalService } from '../tenant-portal/tenant-portal.service';
 
 @Injectable()
 export class PropertyTenantsService {
-  constructor(private readonly propertyTenantRepository: PropertyTenantRepository) {}
+  private readonly logger = new Logger(PropertyTenantsService.name);
+
+  constructor(
+    private readonly propertyTenantRepository: PropertyTenantRepository,
+    @Inject(forwardRef(() => TenantPortalService)) private readonly tenantPortalService: TenantPortalService,
+  ) {}
 
   async create(dto: CreatePropertyTenantDto, tenantId: string) {
     const existing = await this.propertyTenantRepository.findByEmail(tenantId, dto.email);
     if (existing) {
       throw new ConflictException('A tenant with this email already exists');
     }
-    return this.propertyTenantRepository.create({ ...dto, tenantId } as any);
+    const tenant = await this.propertyTenantRepository.create({ ...dto, tenantId } as any);
+
+    // Send tenant portal invite email
+    try {
+      const { token } = await this.tenantPortalService.generateAndSaveInviteToken(tenant);
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+      const link = `${frontendUrl}/tenant-portal/setup-password?token=${token}`;
+      await this.tenantPortalService.sendPortalInviteEmail(tenant.email, tenant.name, link);
+    } catch (err) {
+      this.logger.error(`Failed to send portal invite to ${dto.email}`, err);
+    }
+
+    return tenant;
   }
 
   async findAll(tenantId: string, page = 1, limit = 20, search?: string) {
