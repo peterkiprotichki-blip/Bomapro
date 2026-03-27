@@ -21,8 +21,11 @@ export class Lease extends BaseDocument {
   @Prop({ required: true })
   tenantId: string; // System tenant (organization)
 
-  @Prop({ required: true })
-  propertyId: string;
+  @Prop({ required: false, default: '' })
+  propertyId: string; // Backward compatibility - can be derived from unit
+
+  @Prop({ required: false, default: '' })
+  unitId: string; // New: Direct unit reference
 
   @Prop({ required: true })
   propertyTenantId: string; // Rental tenant
@@ -98,6 +101,7 @@ export class Lease extends BaseDocument {
 export const LeaseSchema = SchemaFactory.createForClass(Lease);
 LeaseSchema.index({ tenantId: 1 });
 LeaseSchema.index({ propertyId: 1 });
+LeaseSchema.index({ unitId: 1 });
 LeaseSchema.index({ propertyTenantId: 1 });
 LeaseSchema.index({ status: 1 });
 LeaseSchema.index({ endDate: 1 });

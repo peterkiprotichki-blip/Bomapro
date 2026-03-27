@@ -23,6 +23,11 @@ import { PropertiesListComponent } from './modules/properties/properties-list/pr
 import { PropertyDetailComponent } from './modules/properties/property-detail/property-detail.component';
 import { PropertyFormComponent } from './modules/properties/property-form/property-form.component';
 
+// Units
+import { UnitsListComponent } from './modules/units/units-list/units-list.component';
+import { UnitDetailComponent } from './modules/units/unit-detail/unit-detail.component';
+import { UnitsFormComponent } from './modules/units/units-form/units-form.component';
+
 // Property Tenants
 import { TenantsListComponent } from './modules/property-tenants/tenants-list/tenants-list.component';
 import { TenantDetailComponent } from './modules/property-tenants/tenant-detail/tenant-detail.component';
@@ -68,6 +73,9 @@ import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
     PropertiesListComponent,
     PropertyDetailComponent,
     PropertyFormComponent,
+    UnitsListComponent,
+    UnitDetailComponent,
+    UnitsFormComponent,
     TenantsListComponent,
     TenantDetailComponent,
     LeasesListComponent,

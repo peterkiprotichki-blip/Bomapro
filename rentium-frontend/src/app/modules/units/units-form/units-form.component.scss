@@ -1,5 +1,4 @@
-:host { display: block; }
-
+/* Modal animations and styling */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -21,11 +20,13 @@
 }
 
 .animate-in {
+  animation: fadeIn 200ms ease-out;
+
   &.fade-in {
-    animation: fadeIn 0.2s ease-out;
+    animation: fadeIn 200ms ease-out;
   }
 
   &.zoom-in-95 {
-    animation: slideDown 0.2s ease-out;
+    animation: slideDown 200ms ease-out;
   }
 }

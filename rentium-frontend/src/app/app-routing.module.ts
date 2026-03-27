@@ -6,6 +6,8 @@ import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { PropertiesListComponent } from './modules/properties/properties-list/properties-list.component';
 import { PropertyDetailComponent } from './modules/properties/property-detail/property-detail.component';
 import { PropertyFormComponent } from './modules/properties/property-form/property-form.component';
+import { UnitsListComponent } from './modules/units/units-list/units-list.component';
+import { UnitDetailComponent } from './modules/units/unit-detail/unit-detail.component';
 import { TenantsListComponent } from './modules/property-tenants/tenants-list/tenants-list.component';
 import { TenantDetailComponent } from './modules/property-tenants/tenant-detail/tenant-detail.component';
 import { LeasesListComponent } from './modules/leases/leases-list/leases-list.component';
@@ -33,6 +35,8 @@ const routes: Routes = [
       { path: 'properties/new', component: PropertyFormComponent },
       { path: 'properties/:id', component: PropertyDetailComponent },
       { path: 'properties/:id/edit', component: PropertyFormComponent },
+      { path: 'units', component: UnitsListComponent },
+      { path: 'units/:id', component: UnitDetailComponent },
       { path: 'tenants', component: TenantsListComponent },
       { path: 'tenants/:id', component: TenantDetailComponent },
       { path: 'leases', component: LeasesListComponent },

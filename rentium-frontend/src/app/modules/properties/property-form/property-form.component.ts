@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
 import { PropertiesService } from '../../../shared/services/properties/properties.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { Property } from '../../../shared/interfaces/models';
@@ -9,11 +8,13 @@ import { Property } from '../../../shared/interfaces/models';
   templateUrl: './property-form.component.html',
   styleUrls: ['./property-form.component.scss'],
 })
-export class PropertyFormComponent implements OnInit {
-  isEdit = false;
-  propertyId = '';
+export class PropertyFormComponent implements OnInit, OnChanges {
+  @Input() isOpen = false;
+  @Input() property: Property | null = null;
+  @Output() close = new EventEmitter<void>();
+  @Output() save = new EventEmitter<Property>();
+
   loading = false;
-  saving = false;
   error = '';
 
   form: Partial<Property> = {
@@ -28,22 +29,21 @@ export class PropertyFormComponent implements OnInit {
   newAmenity = '';
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
     private propertiesService: PropertiesService,
     public themeService: ThemeService,
   ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.isEdit = true;
-      this.propertyId = id;
-      this.loading = true;
-      this.propertiesService.getById(id).subscribe({
-        next: (prop) => { Object.assign(this.form, prop); this.loading = false; },
-        error: () => { this.loading = false; this.router.navigate(['/properties']); },
-      });
+    if (this.property) {
+      this.form = { ...this.property };
+    }
+  }
+
+  ngOnChanges(): void {
+    if (this.property) {
+      this.form = { ...this.property };
+    } else if (!this.isOpen) {
+      this.resetForm();
     }
   }
 
@@ -59,24 +59,49 @@ export class PropertyFormComponent implements OnInit {
     this.form.amenities?.splice(i, 1);
   }
 
-  save(): void {
-    if (!this.form.name) { this.error = 'Name is required'; return; }
-    this.saving = true;
+  onSubmit(): void {
+    if (!this.form.name) {
+      this.error = 'Property name is required';
+      return;
+    }
+
+    this.loading = true;
     this.error = '';
 
-    const obs = this.isEdit
-      ? this.propertiesService.update(this.propertyId, this.form)
-      : this.propertiesService.create(this.form);
+    const request = this.property?._id
+      ? this.propertiesService.update(this.property._id, this.form)
+      : this.propertiesService.create(this.form as Property);
 
-    obs.subscribe({
-      next: (prop) => {
-        this.saving = false;
-        this.router.navigate(['/properties', prop._id]);
+    request.subscribe({
+      next: (savedProperty) => {
+        this.loading = false;
+        this.save.emit(savedProperty);
+        this.closeModal();
       },
       error: (err) => {
-        this.saving = false;
-        this.error = err.error?.message || 'Failed to save';
+        this.loading = false;
+        this.error = err.error?.message || 'Failed to save property';
       },
     });
+  }
+
+  closeModal(): void {
+    this.resetForm();
+    this.close.emit();
+  }
+
+  resetForm(): void {
+    this.form = {
+      name: '', description: '', type: 'apartment', status: 'available',
+      address: '', city: '', county: '', rentAmount: 0, depositAmount: 0,
+      currency: 'KES', bedrooms: 1, bathrooms: 1, squareFootage: 0,
+      amenities: [], unitNumber: '', floor: 0, buildingName: '',
+    };
+    this.error = '';
+    this.newAmenity = '';
+  }
+
+  get isEditMode(): boolean {
+    return !!this.property?._id;
   }
 }

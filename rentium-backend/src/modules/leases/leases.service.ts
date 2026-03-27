@@ -1,11 +1,15 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { LeaseRepository } from './repositories/lease.repository';
 import { CreateLeaseDto, UpdateLeaseDto } from './dto/lease.dto';
+import { UnitsService } from '../units/units.service';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class LeasesService {
-  constructor(private readonly leaseRepository: LeaseRepository) {}
+  constructor(
+    private readonly leaseRepository: LeaseRepository,
+    private readonly unitsService: UnitsService,
+  ) {}
 
   async create(dto: CreateLeaseDto, tenantId: string) {
     const activeLease = await this.leaseRepository.findActiveByProperty(dto.propertyId);
@@ -58,22 +62,46 @@ export class LeasesService {
   async activate(id: string, tenantId: string) {
     const lease = await this.findById(id, tenantId);
 
-    const activeLease = await this.leaseRepository.findActiveByProperty(lease.propertyId);
+    const activeLease = await this.leaseRepository.findActiveByProperty(lease.propertyId || '');
     if (activeLease && activeLease._id.toString() !== id) {
       throw new BadRequestException('Property already has an active lease');
     }
 
-    return this.leaseRepository.update(id, { status: 'active' } as any);
+    const updated = await this.leaseRepository.update(id, { status: 'active' } as any);
+
+    // If lease is for a unit, mark unit as occupied
+    if (lease.unitId) {
+      try {
+        await this.unitsService.assignTenant(lease.unitId, tenantId, lease.propertyTenantId, id);
+      } catch (error) {
+        // Log error but don't fail the activation
+        console.error('Failed to update unit occupancy:', error.message);
+      }
+    }
+
+    return updated;
   }
 
   async terminate(id: string, tenantId: string, reason: string) {
-    await this.findById(id, tenantId);
+    const lease = await this.findById(id, tenantId);
 
-    return this.leaseRepository.update(id, {
+    const updated = await this.leaseRepository.update(id, {
       status: 'terminated',
       terminatedAt: new Date(),
       terminationReason: reason,
     } as any);
+
+    // If lease is for a unit, mark unit as vacant
+    if (lease.unitId) {
+      try {
+        await this.unitsService.releaseTenant(lease.unitId, tenantId);
+      } catch (error) {
+        // Log error but don't fail the termination
+        console.error('Failed to release unit occupancy:', error.message);
+      }
+    }
+
+    return updated;
   }
 
   async update(id: string, tenantId: string, dto: UpdateLeaseDto) {

@@ -82,11 +82,8 @@ export class Property extends BaseDocument {
   @Prop({ required: false, default: '' })
   managerId: string;
 
-  @Prop({ required: false, default: '' })
-  currentTenantId: string;
-
-  @Prop({ required: false, default: '' })
-  currentLeaseId: string;
+  // ─── NOTE: currentTenantId and currentLeaseId moved to Unit schema ───────
+  // Properties no longer track occupancy directly; units do.
 }
 
 export const PropertySchema = SchemaFactory.createForClass(Property);

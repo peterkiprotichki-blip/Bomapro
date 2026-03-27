@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { PropertiesService } from '../../../shared/services/properties/properties.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { Property, PaginatedResponse } from '../../../shared/interfaces/models';
@@ -20,13 +19,16 @@ export class PropertiesListComponent implements OnInit {
   total = 0;
   totalPages = 0;
 
+  // Modal state
+  formModalOpen = false;
+  selectedProperty: Property | null = null;
+
   statusOptions = ['available', 'occupied', 'maintenance', 'unavailable'];
   typeOptions = ['apartment', 'house', 'commercial', 'land', 'bedsitter', 'single_room', 'one_bedroom', 'two_bedroom', 'three_bedroom'];
 
   constructor(
     private propertiesService: PropertiesService,
     public themeService: ThemeService,
-    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -61,8 +63,24 @@ export class PropertiesListComponent implements OnInit {
     this.loadProperties();
   }
 
-  viewProperty(id: string): void {
-    this.router.navigate(['/properties', id]);
+  openCreateModal(): void {
+    this.selectedProperty = null;
+    this.formModalOpen = true;
+  }
+
+  openEditModal(property: Property): void {
+    this.selectedProperty = property;
+    this.formModalOpen = true;
+  }
+
+  closeFormModal(): void {
+    this.formModalOpen = false;
+    this.selectedProperty = null;
+  }
+
+  onPropertySaved(): void {
+    this.closeFormModal();
+    this.loadProperties();
   }
 
   getStatusClass(status: string): string {
