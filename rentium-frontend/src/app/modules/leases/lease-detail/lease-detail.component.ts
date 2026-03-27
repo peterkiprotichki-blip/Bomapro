@@ -3,6 +3,8 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LeasesService } from '../../../shared/services/leases/leases.service';
+import { PropertiesService } from '../../../shared/services/properties/properties.service';
+import { PropertyTenantsService } from '../../../shared/services/property-tenants/property-tenants.service';
 import { PaymentsService } from '../../../shared/services/payments/payments.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { Lease, Payment } from '../../../shared/interfaces/models';
@@ -28,6 +30,8 @@ export class LeaseDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private leasesService: LeasesService,
+    private propertiesService: PropertiesService,
+    private propertyTenantsService: PropertyTenantsService,
     private paymentsService: PaymentsService,
     public themeService: ThemeService,
   ) {}
@@ -46,6 +50,30 @@ export class LeaseDetailComponent implements OnInit {
         this.generateLeaseTimeline();
         this.loading = false;
         this.paymentsService.getByLease(id).subscribe((p) => (this.payments = p || []));
+        
+        // Load property name
+        if (this.lease.propertyId) {
+          this.propertiesService.getById(this.lease.propertyId).subscribe({
+            next: (property) => {
+              if (this.lease) {
+                this.lease.propertyName = property.name;
+              }
+            },
+            error: (err) => console.error('Error loading property:', err),
+          });
+        }
+        
+        // Load tenant name
+        if (this.lease.propertyTenantId) {
+          this.propertyTenantsService.getById(this.lease.propertyTenantId).subscribe({
+            next: (tenant) => {
+              if (this.lease) {
+                this.lease.propertyTenantName = tenant.name;
+              }
+            },
+            error: (err) => console.error('Error loading tenant:', err),
+          });
+        }
       },
       error: () => { this.loading = false; },
     });

@@ -34,24 +34,24 @@
   </div>
 
   <!-- Portfolio Overview Card -->
-  <div *ngIf="occupancyStats" class="mb-6 bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700">
-    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Portfolio Overview</h3>
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-      <div class="text-center">
-        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ occupancyStats?.activeLeases || 0 }}</p>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Active Leases</p>
+  <div *ngIf="occupancyStats" class="mb-6 bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+    <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">Portfolio Overview</h3>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+      <div class="text-center py-2">
+        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ occupancyStats?.activeLeases || 0 }}</p>
+        <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">Active Leases</p>
       </div>
-      <div class="text-center">
-        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ occupancyStats?.totalUnits || 0 }}</p>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Total Units</p>
+      <div class="text-center py-2">
+        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ occupancyStats?.totalUnits || 0 }}</p>
+        <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">Total Units</p>
       </div>
-      <div class="text-center">
-        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ occupancyStats?.occupancyRate || 0 }}%</p>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Occupancy Rate</p>
+      <div class="text-center py-2">
+        <p class="text-lg font-bold text-gray-900 dark:text-white">{{ occupancyStats?.occupancyRate || 0 }}%</p>
+        <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">Occupancy Rate</p>
       </div>
-      <div class="text-center">
-        <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ occupancyStats?.vacantUnits || 0 }}</p>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Vacant Units</p>
+      <div class="text-center py-2">
+        <p class="text-lg font-bold text-red-600 dark:text-red-400">{{ occupancyStats?.vacantUnits || 0 }}</p>
+        <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">Vacant Units</p>
       </div>
     </div>
   </div>
