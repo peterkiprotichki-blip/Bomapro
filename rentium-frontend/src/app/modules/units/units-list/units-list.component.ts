@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { UnitsService, Unit, PaginatedResponse } from '../../../shared/services/units/units.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
+import { PropertiesService } from '../../../shared/services/properties/properties.service';
 
 @Component({
   selector: 'app-units-list',
@@ -18,8 +19,10 @@ export class UnitsListComponent implements OnInit {
   limit = 20;
   total = 0;
   totalPages = 0;
+  propertyMap: { [key: string]: string } = {}; // Cache property names
 
   statusOptions = ['vacant', 'occupied', 'maintenance', 'reserved'];
+  unitTypeOptions = ['bedsitter', 'single_room', 'one_bedroom', 'two_bedroom', 'three_bedroom'];
 
   // Modal state
   formModalOpen = false;
@@ -28,6 +31,7 @@ export class UnitsListComponent implements OnInit {
 
   constructor(
     private unitsService: UnitsService,
+    private propertiesService: PropertiesService,
     public themeService: ThemeService,
     private router: Router,
     private route: ActivatedRoute,
@@ -55,12 +59,58 @@ export class UnitsListComponent implements OnInit {
           this.units = res.data;
           this.total = res.total;
           this.totalPages = res.totalPages;
+          this.loadPropertiesForUnits();
           this.loading = false;
         },
         error: () => {
           this.loading = false;
         },
       });
+  }
+
+  loadPropertiesForUnits(): void {
+    // Get unique property IDs from units
+    const uniquePropertyIds = Array.from(new Set(this.units.map(u => u.propertyId)));
+    
+    // Load properties that aren't already cached
+    const idsToLoad = uniquePropertyIds.filter(id => !this.propertyMap[id]);
+    
+    if (idsToLoad.length === 0) return;
+
+    // Load all properties and cache them
+    this.propertiesService.getAll(1, 100).subscribe({
+      next: (res) => {
+        res.data.forEach(prop => {
+          this.propertyMap[prop._id || ''] = prop.name;
+        });
+      },
+      error: () => {
+        // Silent fail - just continue without property names
+      }
+    });
+  }
+
+  getPropertyName(propertyId: string): string {
+    return this.propertyMap[propertyId] || 'Unknown Property';
+  }
+
+  getUnitTypeLabel(type: string | undefined): string {
+    if (!type) return '-';
+    return type
+      .split('_')
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+  }
+
+  getFloorLabel(floor: number | string | undefined): string {
+    if (floor === undefined || floor === null) return '-';
+    if (floor === 'G' || floor === 0) return 'G';
+    const floorNum = typeof floor === 'string' ? parseInt(floor) : floor;
+    if (isNaN(floorNum)) return String(floor);
+    // Add ordinal suffix
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    const v = floorNum % 100;
+    return floorNum + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]);
   }
 
   onSearch(): void {
