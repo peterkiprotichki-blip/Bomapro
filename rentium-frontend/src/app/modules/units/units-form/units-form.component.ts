@@ -21,15 +21,23 @@ export class UnitsFormComponent implements OnInit {
   error = '';
   properties: Property[] = [];
   statusOptions = ['vacant', 'occupied', 'maintenance', 'reserved'];
+  unitTypeOptions = ['bedsitter', 'single_room', 'one_bedroom', 'two_bedroom', 'three_bedroom'];
+  rentCycleOptions = ['monthly', 'quarterly', 'annual'];
+  floorOptions: (number | string)[] = [];
 
   form: Partial<Unit> = {
     propertyId: '',
     unitNumber: '',
     description: '',
-    status: 'vacant',
+    unitType: 'one_bedroom',
+    floor: 0,
+    status: 'occupied',
     rentAmount: 0,
     currency: 'KES',
     securityDeposit: 0,
+    electricityMeterNumber: '',
+    waterMeterNumber: '',
+    rentCycle: 'monthly',
   };
 
   constructor(
@@ -42,16 +50,20 @@ export class UnitsFormComponent implements OnInit {
     this.loadProperties();
     if (this.unit) {
       this.form = { ...this.unit };
+      this.updateFloorOptions();
     } else if (this.propertyId) {
       this.form.propertyId = this.propertyId;
+      this.updateFloorOptions();
     }
   }
 
   ngOnChanges(): void {
     if (this.unit) {
       this.form = { ...this.unit };
+      this.updateFloorOptions();
     } else if (this.propertyId && !this.form.propertyId) {
       this.form.propertyId = this.propertyId;
+      this.updateFloorOptions();
     }
   }
 
@@ -67,6 +79,32 @@ export class UnitsFormComponent implements OnInit {
         this.loadingProperties = false;
       },
     });
+  }
+
+  updateFloorOptions(): void {
+    const selectedProperty = this.properties.find(p => p._id === this.form.propertyId);
+    if (selectedProperty) {
+      const floorsCount = selectedProperty.floors || 0;
+      this.floorOptions = [];
+      
+      if (floorsCount === 0) {
+        this.floorOptions = ['G'];
+      } else {
+        // Ground floor (0 or G), then 1, 2, 3, ..., floors
+        this.floorOptions.push('G');
+        for (let i = 1; i <= floorsCount; i++) {
+          this.floorOptions.push(i);
+        }
+      }
+    } else {
+      this.floorOptions = ['G'];
+    }
+  }
+
+  onPropertyChange(): void {
+    this.updateFloorOptions();
+    // Reset floor to G when property changes
+    this.form.floor = 'G';
   }
 
   onSubmit(): void {
@@ -100,10 +138,15 @@ export class UnitsFormComponent implements OnInit {
       propertyId: this.propertyId || '',
       unitNumber: '',
       description: '',
-      status: 'vacant',
+      unitType: 'one_bedroom',
+      floor: 'G',
+      status: 'occupied',
       rentAmount: 0,
       currency: 'KES',
       securityDeposit: 0,
+      electricityMeterNumber: '',
+      waterMeterNumber: '',
+      rentCycle: 'monthly',
     };
     this.error = '';
     this.close.emit();

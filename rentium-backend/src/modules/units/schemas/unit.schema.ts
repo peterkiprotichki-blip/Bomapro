@@ -8,6 +8,20 @@ export enum UnitStatus {
   RESERVED = 'reserved',
 }
 
+export enum UnitType {
+  BEDSITTER = 'bedsitter',
+  SINGLE_ROOM = 'single_room',
+  ONE_BEDROOM = 'one_bedroom',
+  TWO_BEDROOM = 'two_bedroom',
+  THREE_BEDROOM = 'three_bedroom',
+}
+
+export enum RentCycle {
+  MONTHLY = 'monthly',
+  QUARTERLY = 'quarterly',
+  ANNUAL = 'annual',
+}
+
 @Schema({ timestamps: true })
 export class Unit extends BaseDocument {
   @Prop({ required: true })
@@ -22,6 +36,12 @@ export class Unit extends BaseDocument {
   @Prop({ required: false, default: '' })
   description: string;
 
+  @Prop({ type: String, enum: UnitType, default: UnitType.ONE_BEDROOM })
+  unitType: UnitType;
+
+  @Prop({ required: false, default: 0 })
+  floor: number | string; // 0 or "G" for ground floor, 1, 2, 3 etc.
+
   @Prop({ type: String, enum: UnitStatus, default: UnitStatus.VACANT })
   status: UnitStatus;
 
@@ -33,6 +53,15 @@ export class Unit extends BaseDocument {
 
   @Prop({ required: false, default: 0 })
   securityDeposit: number;
+
+  @Prop({ required: false, default: '' })
+  electricityMeterNumber: string;
+
+  @Prop({ required: false, default: '' })
+  waterMeterNumber: string;
+
+  @Prop({ type: String, enum: RentCycle, default: RentCycle.MONTHLY })
+  rentCycle: RentCycle;
 
   @Prop({ required: false, default: '' })
   currentTenantId: string;

@@ -26,6 +26,7 @@ export class PropertyFormComponent implements OnInit, OnChanges {
     description: '',
     owner: '',
     yearBuilt: new Date().getFullYear(),
+    floors: 0,
     amenities: [],
   };
 
@@ -109,6 +110,7 @@ export class PropertyFormComponent implements OnInit, OnChanges {
       description: '',
       owner: '',
       yearBuilt: new Date().getFullYear(),
+      floors: 0,
       amenities: [],
     };
     this.error = '';

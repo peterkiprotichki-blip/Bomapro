@@ -42,6 +42,10 @@ export class CreatePropertyDto {
   @IsArray()
   @IsOptional()
   images?: string[];
+
+  @IsNumber()
+  @IsOptional()
+  floors?: number; // Number of floors in the property
 }
 
 export class UpdatePropertyDto extends PartialType(CreatePropertyDto) {

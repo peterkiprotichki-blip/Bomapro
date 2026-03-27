@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsOptional, IsNumber, IsEnum } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
-import { UnitStatus } from '../schemas/unit.schema';
+import { UnitStatus, UnitType, RentCycle } from '../schemas/unit.schema';
 
 export class CreateUnitDto {
   @IsString()
@@ -15,6 +15,13 @@ export class CreateUnitDto {
   @IsOptional()
   description?: string;
 
+  @IsEnum(UnitType)
+  @IsOptional()
+  unitType?: UnitType;
+
+  @IsOptional()
+  floor?: number | string;
+
   @IsNumber()
   @IsNotEmpty()
   rentAmount: number;
@@ -26,6 +33,18 @@ export class CreateUnitDto {
   @IsNumber()
   @IsOptional()
   securityDeposit?: number;
+
+  @IsString()
+  @IsOptional()
+  electricityMeterNumber?: string;
+
+  @IsString()
+  @IsOptional()
+  waterMeterNumber?: string;
+
+  @IsEnum(RentCycle)
+  @IsOptional()
+  rentCycle?: RentCycle;
 
   @IsEnum(UnitStatus)
   @IsOptional()

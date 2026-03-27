@@ -9,10 +9,15 @@ export interface Unit {
   propertyId: string;
   unitNumber: string;
   description?: string;
+  unitType?: string;
+  floor?: number | string;
   status: string;
   rentAmount: number;
   currency?: string;
   securityDeposit?: number;
+  electricityMeterNumber?: string;
+  waterMeterNumber?: string;
+  rentCycle?: string;
   currentTenantId?: string;
   currentLeaseId?: string;
   currentPropertyTenantId?: string;

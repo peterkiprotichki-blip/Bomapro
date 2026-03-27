@@ -13,6 +13,7 @@ export interface Property {
   address: string;
   owner: string;
   yearBuilt: number;
+  floors?: number;
   amenities: string[];
   images: string[];
   createdAt: string;

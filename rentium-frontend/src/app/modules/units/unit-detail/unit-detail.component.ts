@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UnitsService, Unit } from '../../../shared/services/units/units.service';
+import { PropertiesService } from '../../../shared/services/properties/properties.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
+import { Property } from '../../../shared/interfaces/models';
 
 @Component({
   selector: 'app-unit-detail',
@@ -10,6 +12,7 @@ import { ThemeService } from '../../../shared/services/theme/theme.service';
 })
 export class UnitDetailComponent implements OnInit {
   unit: Unit | null = null;
+  property: Property | null = null;
   loading = true;
   formModalOpen = false;
 
@@ -17,6 +20,7 @@ export class UnitDetailComponent implements OnInit {
 
   constructor(
     private unitsService: UnitsService,
+    private propertiesService: PropertiesService,
     public themeService: ThemeService,
     private route: ActivatedRoute,
     private router: Router,
@@ -34,10 +38,27 @@ export class UnitDetailComponent implements OnInit {
     this.unitsService.getById(id).subscribe({
       next: (unit) => {
         this.unit = unit;
-        this.loading = false;
+        if (unit.propertyId) {
+          this.loadProperty(unit.propertyId);
+        } else {
+          this.loading = false;
+        }
       },
       error: (err) => {
         console.error('Load error:', err);
+        this.loading = false;
+      },
+    });
+  }
+
+  loadProperty(propertyId: string): void {
+    this.propertiesService.getById(propertyId).subscribe({
+      next: (property) => {
+        this.property = property;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Load property error:', err);
         this.loading = false;
       },
     });

@@ -54,6 +54,9 @@ export class Property extends BaseDocument {
   @Prop({ type: [String], default: [] })
   images: string[];
 
+  @Prop({ required: false, default: 0 })
+  floors: number; // Number of floors in the property (0 = ground floor only)
+
   // ─── NOTE: currentTenantId and currentLeaseId moved to Unit schema ───────
   // Properties no longer track occupancy directly; units do.
 }
