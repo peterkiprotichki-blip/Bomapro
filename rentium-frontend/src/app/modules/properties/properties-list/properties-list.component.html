@@ -40,8 +40,8 @@
           <tr class="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50">
             <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
             <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden sm:table-cell">Type</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden md:table-cell">Location</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Rent</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden md:table-cell">Address</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden lg:table-cell">Owner</th>
             <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Status</th>
             <th class="text-center px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Action</th>
           </tr>
@@ -53,11 +53,11 @@
           >
             <td class="px-4 py-3">
               <p class="font-medium text-gray-800 dark:text-gray-100">{{ prop.name }}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400" *ngIf="prop.unitNumber">Unit {{ prop.unitNumber }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400" *ngIf="prop.propertyCode">{{ prop.propertyCode }}</p>
             </td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden sm:table-cell capitalize">{{ prop.type.replace('_', ' ') }}</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden md:table-cell">{{ prop.address }}, {{ prop.city }}</td>
-            <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{{ prop.currency || 'KES' }} {{ prop.rentAmount | number }}</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden sm:table-cell capitalize">{{ prop.type }}</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden md:table-cell">{{ prop.address }}</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden lg:table-cell">{{ prop.owner || '-' }}</td>
             <td class="px-4 py-3">
               <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClass(prop.status)">{{ prop.status | titlecase }}</span>
             </td>

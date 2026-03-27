@@ -14,10 +14,9 @@ export enum PropertyType {
 }
 
 export enum PropertyStatus {
-  AVAILABLE = 'available',
-  OCCUPIED = 'occupied',
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
   MAINTENANCE = 'maintenance',
-  UNAVAILABLE = 'unavailable',
 }
 
 @Schema({ timestamps: true })
@@ -28,59 +27,32 @@ export class Property extends BaseDocument {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: false, default: '' })
-  description: string;
+  @Prop({ required: true, unique: true, sparse: true })
+  propertyCode: string;
 
   @Prop({ type: String, enum: PropertyType, default: PropertyType.APARTMENT })
   type: PropertyType;
 
-  @Prop({ type: String, enum: PropertyStatus, default: PropertyStatus.AVAILABLE })
+  @Prop({ type: String, enum: PropertyStatus, default: PropertyStatus.ACTIVE })
   status: PropertyStatus;
 
   @Prop({ required: true })
   address: string;
 
   @Prop({ required: false, default: '' })
-  city: string;
+  description: string;
 
   @Prop({ required: false, default: '' })
-  county: string;
+  owner: string;
 
   @Prop({ required: false, default: 0 })
-  rentAmount: number;
-
-  @Prop({ required: false, default: 'KES' })
-  currency: string;
-
-  @Prop({ required: false, default: 0 })
-  depositAmount: number;
-
-  @Prop({ required: false, default: 0 })
-  bedrooms: number;
-
-  @Prop({ required: false, default: 0 })
-  bathrooms: number;
-
-  @Prop({ required: false, default: 0 })
-  squareFootage: number;
+  yearBuilt: number;
 
   @Prop({ type: [String], default: [] })
   amenities: string[];
 
   @Prop({ type: [String], default: [] })
   images: string[];
-
-  @Prop({ required: false, default: '' })
-  unitNumber: string;
-
-  @Prop({ required: false, default: '' })
-  floor: string;
-
-  @Prop({ required: false, default: '' })
-  buildingName: string;
-
-  @Prop({ required: false, default: '' })
-  managerId: string;
 
   // ─── NOTE: currentTenantId and currentLeaseId moved to Unit schema ───────
   // Properties no longer track occupancy directly; units do.
@@ -90,4 +62,4 @@ export const PropertySchema = SchemaFactory.createForClass(Property);
 PropertySchema.index({ tenantId: 1 });
 PropertySchema.index({ status: 1 });
 PropertySchema.index({ type: 1 });
-PropertySchema.index({ city: 1, county: 1 });
+PropertySchema.index({ propertyCode: 1, tenantId: 1 }, { unique: true, sparse: true });

@@ -23,8 +23,8 @@ export class PropertiesListComponent implements OnInit {
   formModalOpen = false;
   selectedProperty: Property | null = null;
 
-  statusOptions = ['available', 'occupied', 'maintenance', 'unavailable'];
-  typeOptions = ['apartment', 'house', 'commercial', 'land', 'bedsitter', 'single_room', 'one_bedroom', 'two_bedroom', 'three_bedroom'];
+  statusOptions = ['active', 'inactive', 'maintenance'];
+  typeOptions = ['apartment', 'commercial', 'plot', 'house', 'land'];
 
   constructor(
     private propertiesService: PropertiesService,
@@ -85,10 +85,9 @@ export class PropertiesListComponent implements OnInit {
 
   getStatusClass(status: string): string {
     const map: Record<string, string> = {
-      available: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-      occupied: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+      active: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+      inactive: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400',
       maintenance: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-      unavailable: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
     };
     return map[status] || 'bg-gray-100 text-gray-700';
   }

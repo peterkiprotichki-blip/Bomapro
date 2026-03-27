@@ -1,31 +1,20 @@
 // ─── Properties ─── //
-export type PropertyType = 'apartment' | 'house' | 'commercial' | 'land' | 'bedsitter' | 'single_room' | 'one_bedroom' | 'two_bedroom' | 'three_bedroom';
-export type PropertyStatus = 'available' | 'occupied' | 'maintenance' | 'unavailable';
+export type PropertyType = 'apartment' | 'commercial' | 'plot' | 'house' | 'land';
+export type PropertyStatus = 'active' | 'inactive' | 'maintenance';
 
 export interface Property {
   _id: string;
   tenantId: string;
   name: string;
+  propertyCode: string;
   description: string;
   type: PropertyType;
   status: PropertyStatus;
   address: string;
-  city: string;
-  county: string;
-  rentAmount: number;
-  depositAmount: number;
-  currency: string;
-  bedrooms: number;
-  bathrooms: number;
-  squareFootage: number;
+  owner: string;
+  yearBuilt: number;
   amenities: string[];
   images: string[];
-  unitNumber: string;
-  floor: number;
-  buildingName: string;
-  managerId: string;
-  currentTenantId: string;
-  currentLeaseId: string;
   createdAt: string;
   updatedAt: string;
 }

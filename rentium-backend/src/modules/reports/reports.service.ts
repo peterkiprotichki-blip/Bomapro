@@ -73,11 +73,10 @@ export class ReportsService {
   async getOccupancyReport(tenantId: string) {
     const properties = await this.propertyRepo.findByTenant(tenantId);
     const total = properties.length;
-    const occupied = properties.filter(p => p.status === 'occupied').length;
-    const available = properties.filter(p => p.status === 'available').length;
+    const active = properties.filter(p => p.status === 'active').length;
+    const inactive = properties.filter(p => p.status === 'inactive').length;
     const maintenance = properties.filter(p => p.status === 'maintenance').length;
-    const rate = total > 0 ? Math.round((occupied / total) * 100) : 0;
-    return { total, occupied, available, maintenance, occupancyRate: rate };
+    return { total, active, inactive, maintenance };
   }
 
   async getLeaseExpiryReport(tenantId: string, daysAhead = 90) {

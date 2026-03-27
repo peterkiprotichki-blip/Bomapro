@@ -18,14 +18,19 @@ export class PropertyFormComponent implements OnInit, OnChanges {
   error = '';
 
   form: Partial<Property> = {
-    name: '', description: '', type: 'apartment', status: 'available',
-    address: '', city: '', county: '', rentAmount: 0, depositAmount: 0,
-    currency: 'KES', bedrooms: 1, bathrooms: 1, squareFootage: 0,
-    amenities: [], unitNumber: '', floor: 0, buildingName: '',
+    name: '',
+    propertyCode: '',
+    type: 'apartment',
+    status: 'active',
+    address: '',
+    description: '',
+    owner: '',
+    yearBuilt: new Date().getFullYear(),
+    amenities: [],
   };
 
-  typeOptions = ['apartment', 'house', 'commercial', 'land', 'bedsitter', 'single_room', 'one_bedroom', 'two_bedroom', 'three_bedroom'];
-  statusOptions = ['available', 'occupied', 'maintenance', 'unavailable'];
+  typeOptions = ['apartment', 'commercial', 'plot', 'house', 'land'];
+  statusOptions = ['active', 'inactive', 'maintenance'];
   newAmenity = '';
 
   constructor(
@@ -36,6 +41,9 @@ export class PropertyFormComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     if (this.property) {
       this.form = { ...this.property };
+    } else {
+      // Auto-generate property code for new properties
+      this.generatePropertyCode();
     }
   }
 
@@ -44,7 +52,17 @@ export class PropertyFormComponent implements OnInit, OnChanges {
       this.form = { ...this.property };
     } else if (!this.isOpen) {
       this.resetForm();
+    } else if (!this.form.propertyCode) {
+      this.generatePropertyCode();
     }
+  }
+
+  generatePropertyCode(): void {
+    // Generate code in format PROP-XXXXX (5 digits)
+    // In a real app, this would be more sophisticated
+    const timestamp = Date.now().toString().slice(-5);
+    const random = Math.floor(Math.random() * 10000).toString().padStart(5, '0');
+    this.form.propertyCode = `PROP-${random}`;
   }
 
   addAmenity(): void {
@@ -62,6 +80,10 @@ export class PropertyFormComponent implements OnInit, OnChanges {
   onSubmit(): void {
     if (!this.form.name) {
       this.error = 'Property name is required';
+      return;
+    }
+    if (!this.form.address) {
+      this.error = 'Address is required';
       return;
     }
 
@@ -92,10 +114,15 @@ export class PropertyFormComponent implements OnInit, OnChanges {
 
   resetForm(): void {
     this.form = {
-      name: '', description: '', type: 'apartment', status: 'available',
-      address: '', city: '', county: '', rentAmount: 0, depositAmount: 0,
-      currency: 'KES', bedrooms: 1, bathrooms: 1, squareFootage: 0,
-      amenities: [], unitNumber: '', floor: 0, buildingName: '',
+      name: '',
+      propertyCode: '',
+      type: 'apartment',
+      status: 'active',
+      address: '',
+      description: '',
+      owner: '',
+      yearBuilt: new Date().getFullYear(),
+      amenities: [],
     };
     this.error = '';
     this.newAmenity = '';

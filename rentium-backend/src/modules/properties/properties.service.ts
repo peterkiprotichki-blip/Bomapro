@@ -6,8 +6,17 @@ import { CreatePropertyDto, UpdatePropertyDto } from './dto/property.dto';
 export class PropertiesService {
   constructor(private readonly propertyRepository: PropertyRepository) {}
 
+  private async generatePropertyCode(tenantId: string): Promise<string> {
+    // Generate code like PROP-00001, PROP-00002
+    const count = await this.propertyRepository.countByTenant(tenantId);
+    const code = `PROP-${String(count + 1).padStart(5, '0')}`;
+    return code;
+  }
+
   async create(dto: CreatePropertyDto, tenantId: string) {
-    return this.propertyRepository.create({ ...dto, tenantId } as any);
+    // Auto-generate propertyCode if not provided
+    const propertyCode = dto.propertyCode || await this.generatePropertyCode(tenantId);
+    return this.propertyRepository.create({ ...dto, tenantId, propertyCode } as any);
   }
 
   async findAll(tenantId: string, page = 1, limit = 20, search?: string, status?: string, type?: string) {
@@ -18,8 +27,7 @@ export class PropertiesService {
       filter.$or = [
         { name: { $regex: search, $options: 'i' } },
         { address: { $regex: search, $options: 'i' } },
-        { buildingName: { $regex: search, $options: 'i' } },
-        { unitNumber: { $regex: search, $options: 'i' } },
+        { propertyCode: { $regex: search, $options: 'i' } },
       ];
     }
 
@@ -47,12 +55,12 @@ export class PropertiesService {
   }
 
   async getStats(tenantId: string) {
-    const [total, available, occupied, maintenance] = await Promise.all([
+    const [total, active, inactive, maintenance] = await Promise.all([
       this.propertyRepository.countByTenant(tenantId),
-      this.propertyRepository.countByStatus(tenantId, 'available'),
-      this.propertyRepository.countByStatus(tenantId, 'occupied'),
+      this.propertyRepository.countByStatus(tenantId, 'active'),
+      this.propertyRepository.countByStatus(tenantId, 'inactive'),
       this.propertyRepository.countByStatus(tenantId, 'maintenance'),
     ]);
-    return { total, available, occupied, maintenance };
+    return { total, active, inactive, maintenance };
   }
 }
