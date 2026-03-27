@@ -21,7 +21,9 @@ export class PropertiesListComponent implements OnInit {
 
   // Modal state
   formModalOpen = false;
+  viewModalOpen = false;
   selectedProperty: Property | null = null;
+  viewProperty: Property | null = null;
 
   statusOptions = ['active', 'inactive', 'maintenance'];
   typeOptions = ['apartment', 'commercial', 'plot', 'house', 'land'];
@@ -76,6 +78,21 @@ export class PropertiesListComponent implements OnInit {
   closeFormModal(): void {
     this.formModalOpen = false;
     this.selectedProperty = null;
+  }
+
+  openViewModal(property: Property): void {
+    this.viewProperty = property;
+    this.viewModalOpen = true;
+  }
+
+  closeViewModal(): void {
+    this.viewModalOpen = false;
+    this.viewProperty = null;
+  }
+
+  onViewPropertyEdit(property: Property): void {
+    this.closeViewModal();
+    this.openEditModal(property);
   }
 
   onPropertySaved(): void {

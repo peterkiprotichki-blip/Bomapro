@@ -15,6 +15,10 @@ export class CreatePropertyDto {
   @IsOptional()
   type?: PropertyType;
 
+  @IsEnum(PropertyStatus)
+  @IsOptional()
+  status?: PropertyStatus;
+
   @IsString()
   @IsNotEmpty()
   address: string;

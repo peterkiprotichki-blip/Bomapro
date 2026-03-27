@@ -22,6 +22,7 @@ import { DashboardComponent } from './modules/dashboard/dashboard.component';
 import { PropertiesListComponent } from './modules/properties/properties-list/properties-list.component';
 import { PropertyDetailComponent } from './modules/properties/property-detail/property-detail.component';
 import { PropertyFormComponent } from './modules/properties/property-form/property-form.component';
+import { PropertyViewComponent } from './modules/properties/property-view/property-view.component';
 
 // Units
 import { UnitsListComponent } from './modules/units/units-list/units-list.component';
@@ -73,6 +74,7 @@ import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
     PropertiesListComponent,
     PropertyDetailComponent,
     PropertyFormComponent,
+    PropertyViewComponent,
     UnitsListComponent,
     UnitDetailComponent,
     UnitsFormComponent,

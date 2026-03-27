@@ -61,7 +61,13 @@
             <td class="px-4 py-3">
               <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClass(prop.status)">{{ prop.status | titlecase }}</span>
             </td>
-            <td class="px-4 py-3 text-center">
+            <td class="px-4 py-3 text-center space-x-3">
+              <button
+                (click)="openViewModal(prop)"
+                class="text-sm font-medium text-cyan-600 dark:text-cyan-400 hover:text-cyan-800 dark:hover:text-cyan-300 transition-colors"
+              >
+                <i class="fas fa-eye mr-1"></i> View
+              </button>
               <button
                 (click)="openEditModal(prop)"
                 class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
@@ -102,4 +108,12 @@
     (close)="closeFormModal()"
     (save)="onPropertySaved()"
   ></app-property-form>
+
+  <!-- View Modal -->
+  <app-property-view
+    [isOpen]="viewModalOpen"
+    [property]="viewProperty"
+    (close)="closeViewModal()"
+    (edit)="onViewPropertyEdit($event)"
+  ></app-property-view>
 </div>
