@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { SchemaTypes } from 'mongoose';
 import { BaseDocument } from '../../database/schemas/base.schema';
 
 export enum UnitStatus {
@@ -39,7 +40,7 @@ export class Unit extends BaseDocument {
   @Prop({ type: String, enum: UnitType, default: UnitType.ONE_BEDROOM })
   unitType: UnitType;
 
-  @Prop({ required: false, default: 0 })
+  @Prop({ type: SchemaTypes.Mixed, required: false, default: 0 })
   floor: number | string; // 0 or "G" for ground floor, 1, 2, 3 etc.
 
   @Prop({ type: String, enum: UnitStatus, default: UnitStatus.VACANT })

@@ -23,6 +23,7 @@ export class UnitsListComponent implements OnInit {
 
   // Modal state
   formModalOpen = false;
+  viewModalOpen = false;
   selectedUnit: Unit | null = null;
 
   constructor(
@@ -95,6 +96,21 @@ export class UnitsListComponent implements OnInit {
   onUnitSaved(unit: Unit): void {
     this.loadUnits();
     this.closeFormModal();
+  }
+
+  openViewModal(unit: Unit): void {
+    this.selectedUnit = unit;
+    this.viewModalOpen = true;
+  }
+
+  closeViewModal(): void {
+    this.viewModalOpen = false;
+    this.selectedUnit = null;
+  }
+
+  onUnitEdit(unit: Unit): void {
+    this.closeViewModal();
+    this.openEditModal(unit);
   }
 
   viewUnit(id: string | undefined): void {

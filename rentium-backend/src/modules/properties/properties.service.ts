@@ -16,7 +16,12 @@ export class PropertiesService {
   async create(dto: CreatePropertyDto, tenantId: string) {
     // Auto-generate propertyCode if not provided
     const propertyCode = dto.propertyCode || await this.generatePropertyCode(tenantId);
-    return this.propertyRepository.create({ ...dto, tenantId, propertyCode } as any);
+    return this.propertyRepository.create({ 
+      ...dto, 
+      tenantId, 
+      propertyCode,
+      floors: dto.floors ?? 0 // Ensure floors is always set
+    } as any);
   }
 
   async findAll(tenantId: string, page = 1, limit = 20, search?: string, status?: string, type?: string) {
@@ -44,7 +49,11 @@ export class PropertiesService {
 
   async update(id: string, tenantId: string, dto: UpdatePropertyDto) {
     await this.findById(id, tenantId);
-    const property = await this.propertyRepository.update(id, dto as any);
+    const updateData = {
+      ...dto,
+      floors: dto.floors ?? 0 // Ensure floors is always set
+    };
+    const property = await this.propertyRepository.update(id, updateData as any);
     if (!property) throw new NotFoundException('Property not found');
     return property;
   }
