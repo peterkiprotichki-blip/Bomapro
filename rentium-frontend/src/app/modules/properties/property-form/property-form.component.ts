@@ -41,9 +41,6 @@ export class PropertyFormComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     if (this.property) {
       this.form = { ...this.property };
-    } else {
-      // Auto-generate property code for new properties
-      this.generatePropertyCode();
     }
   }
 
@@ -52,17 +49,7 @@ export class PropertyFormComponent implements OnInit, OnChanges {
       this.form = { ...this.property };
     } else if (!this.isOpen) {
       this.resetForm();
-    } else if (!this.form.propertyCode) {
-      this.generatePropertyCode();
     }
-  }
-
-  generatePropertyCode(): void {
-    // Generate code in format PROP-XXXXX (5 digits)
-    // In a real app, this would be more sophisticated
-    const timestamp = Date.now().toString().slice(-5);
-    const random = Math.floor(Math.random() * 10000).toString().padStart(5, '0');
-    this.form.propertyCode = `PROP-${random}`;
   }
 
   addAmenity(): void {
