@@ -1,13 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { PropertiesService } from '../../../shared/services/properties/properties.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { Property } from '../../../shared/interfaces/models';
+import { PropertyFormComponent } from '../property-form/property-form.component';
 
 @Component({
   selector: 'app-property-detail',
   templateUrl: './property-detail.component.html',
   styleUrls: ['./property-detail.component.scss'],
+  standalone: true,
+  imports: [CommonModule, RouterModule, PropertyFormComponent],
 })
 export class PropertyDetailComponent implements OnInit {
   property: Property | null = null;

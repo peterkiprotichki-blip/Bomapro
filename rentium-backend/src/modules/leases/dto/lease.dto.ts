@@ -9,6 +9,10 @@ export class CreateLeaseDto {
 
   @IsString()
   @IsNotEmpty()
+  unitId: string;
+
+  @IsString()
+  @IsNotEmpty()
   propertyTenantId: string;
 
   @IsDateString()
@@ -54,6 +58,10 @@ export class CreateLeaseDto {
   @IsArray()
   @IsOptional()
   documents?: string[];
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
 
   @IsString()
   @IsOptional()

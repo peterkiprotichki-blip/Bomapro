@@ -1,14 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { UnitsService, Unit } from '../../../shared/services/units/units.service';
 import { PropertiesService } from '../../../shared/services/properties/properties.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { Property } from '../../../shared/interfaces/models';
+import { UnitsFormComponent } from '../units-form/units-form.component';
 
 @Component({
   selector: 'app-unit-detail',
   templateUrl: './unit-detail.component.html',
   styleUrls: ['./unit-detail.component.scss'],
+  standalone: true,
+  imports: [CommonModule, RouterModule, UnitsFormComponent],
 })
 export class UnitDetailComponent implements OnInit {
   unit: Unit | null = null;
@@ -91,13 +95,13 @@ export class UnitDetailComponent implements OnInit {
     }
   }
 
-  getStatusClass(status: string): string {
+  getStatusClass(status: string | undefined): string {
     const map: Record<string, string> = {
       vacant: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
       occupied: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
       maintenance: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
       reserved: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
     };
-    return map[status] || 'bg-gray-100 text-gray-700';
+    return status ? (map[status] || 'bg-gray-100 text-gray-700') : 'bg-gray-100 text-gray-700';
   }
 }

@@ -17,6 +17,7 @@ export class TenantPortalLayoutComponent implements OnInit {
     { label: 'My Lease', icon: '📄', route: '/tenant-portal/lease' },
     { label: 'Make Payment', icon: '💳', route: '/tenant-portal/payments' },
     { label: 'Invoices', icon: '🧾', route: '/tenant-portal/invoices' },
+    { label: 'Maintenance Requests', icon: '🔧', route: '/tenant-portal/maintenance-requests' },
   ];
 
   constructor(private auth: TenantPortalAuthService, private router: Router) {}

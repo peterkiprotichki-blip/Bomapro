@@ -1,4 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { PropertiesService } from '../../../shared/services/properties/properties.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { Property } from '../../../shared/interfaces/models';
@@ -7,6 +9,8 @@ import { Property } from '../../../shared/interfaces/models';
   selector: 'app-property-form',
   templateUrl: './property-form.component.html',
   styleUrls: ['./property-form.component.scss'],
+  standalone: true,
+  imports: [FormsModule, CommonModule],
 })
 export class PropertyFormComponent implements OnInit, OnChanges {
   @Input() isOpen = false;

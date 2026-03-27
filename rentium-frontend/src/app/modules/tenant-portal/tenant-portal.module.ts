@@ -11,6 +11,7 @@ import { PortalDashboardComponent } from './dashboard/portal-dashboard.component
 import { PortalLeaseComponent } from './lease/portal-lease.component';
 import { PortalPaymentsComponent } from './payments/portal-payments.component';
 import { PortalInvoicesComponent } from './invoices/portal-invoices.component';
+import { PortalMaintenanceRequestsComponent } from './maintenance-requests/portal-maintenance-requests.component';
 import { TenantPortalAuthInterceptor } from './shared/interceptors/tenant-portal-auth.interceptor';
 
 @NgModule({
@@ -22,6 +23,7 @@ import { TenantPortalAuthInterceptor } from './shared/interceptors/tenant-portal
     PortalLeaseComponent,
     PortalPaymentsComponent,
     PortalInvoicesComponent,
+    PortalMaintenanceRequestsComponent,
   ],
   imports: [
     CommonModule,

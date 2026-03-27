@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
-import { RentiumUser, DEFAULT_ADMIN_PERMISSIONS, DEFAULT_AGENT_PERMISSIONS, DEFAULT_MANAGER_PERMISSIONS, RentiumUserRole, ALL_PERMISSIONS } from './schemas/rentium-user.schema';
+import { RentiumUser, DEFAULT_ADMIN_PERMISSIONS, DEFAULT_AGENT_PERMISSIONS, DEFAULT_MANAGER_PERMISSIONS, DEFAULT_TENANT_PERMISSIONS, RentiumUserRole, ALL_PERMISSIONS } from './schemas/rentium-user.schema';
 import { RegisterDto, LoginDto, UpdateUserDto, InviteUserDto } from './dto/auth.dto';
 import { EmailService } from './email.service';
 import { TenantsService } from '../tenants/tenants.service';
@@ -416,6 +416,8 @@ export class AuthService {
         return DEFAULT_ADMIN_PERMISSIONS;
       case RentiumUserRole.MANAGER:
         return DEFAULT_MANAGER_PERMISSIONS;
+      case RentiumUserRole.TENANT:
+        return DEFAULT_TENANT_PERMISSIONS;
       default:
         return DEFAULT_AGENT_PERMISSIONS;
     }

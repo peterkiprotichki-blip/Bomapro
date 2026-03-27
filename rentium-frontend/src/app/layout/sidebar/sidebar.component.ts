@@ -9,6 +9,7 @@ interface NavItem {
   icon: string;
   route: string;
   superAdminOnly?: boolean;
+  roles?: string[]; // Specify which roles can see this item
 }
 
 @Component({
@@ -24,16 +25,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
   @Output() navigate = new EventEmitter<void>();
 
   allNavItems: NavItem[] = [
-    { label: 'Dashboard', icon: 'fas fa-th-large', route: '/dashboard' },
-    { label: 'Properties', icon: 'fas fa-building', route: '/properties' },
-    { label: 'Units', icon: 'fas fa-door-open', route: '/units' },
-    { label: 'Tenants', icon: 'fas fa-users', route: '/tenants' },
-    { label: 'Leases', icon: 'fas fa-file-contract', route: '/leases' },
-    { label: 'Payments', icon: 'fas fa-money-bill-wave', route: '/payments' },
-    { label: 'Damages', icon: 'fas fa-tools', route: '/damages' },
-    { label: 'Reports', icon: 'fas fa-chart-bar', route: '/reports' },
-    { label: 'Users', icon: 'fas fa-users-cog', route: '/users' },
-    { label: 'Settings', icon: 'fas fa-cog', route: '/settings' },
+    { label: 'Dashboard', icon: 'fas fa-th-large', route: '/dashboard', roles: ['super_admin', 'admin', 'manager', 'agent', 'tenant'] },
+    { label: 'Properties', icon: 'fas fa-building', route: '/properties', roles: ['super_admin', 'admin', 'manager', 'agent'] },
+    { label: 'Units', icon: 'fas fa-door-open', route: '/units', roles: ['super_admin', 'admin', 'manager', 'agent'] },
+    { label: 'Tenants', icon: 'fas fa-users', route: '/tenants', roles: ['super_admin', 'admin', 'manager'] },
+    { label: 'Leases', icon: 'fas fa-file-contract', route: '/leases', roles: ['super_admin', 'admin', 'manager', 'agent', 'tenant'] },
+    { label: 'Payments', icon: 'fas fa-money-bill-wave', route: '/payments', roles: ['super_admin', 'admin', 'manager', 'agent', 'tenant'] },
+    { label: 'Damages', icon: 'fas fa-tools', route: '/damages', roles: ['super_admin', 'admin', 'manager', 'agent'] },
+    { label: 'Reports', icon: 'fas fa-chart-bar', route: '/reports', roles: ['super_admin', 'admin', 'manager'] },
+    { label: 'Users', icon: 'fas fa-users-cog', route: '/users', roles: ['super_admin', 'admin'] },
+    { label: 'Settings', icon: 'fas fa-cog', route: '/settings', roles: ['super_admin', 'admin'] },
     { label: 'Organizations', icon: 'fas fa-city', route: '/system-tenants', superAdminOnly: true },
   ];
 
@@ -48,8 +49,19 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.userSub = this.authService.user$.subscribe((user) => {
-      const isSuperAdmin = user?.role === 'super_admin';
-      this.navItems = this.allNavItems.filter((item) => !item.superAdminOnly || isSuperAdmin);
+      const userRole = user?.role || '';
+      this.navItems = this.allNavItems.filter((item) => {
+        // If item has superAdminOnly flag, only show for super_admin
+        if (item.superAdminOnly) {
+          return userRole === 'super_admin';
+        }
+        // If item has roles array, check if user role is included
+        if (item.roles) {
+          return item.roles.includes(userRole);
+        }
+        // Default: show all items
+        return true;
+      });
     });
   }
 

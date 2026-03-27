@@ -56,4 +56,54 @@ export class LeasesService {
   getStats(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/stats`);
   }
+
+  calculateNextPaymentDueDate(lease: Lease): Date {
+    const today = new Date();
+    const dueDay = lease.paymentDueDay || 1;
+    const currentMonthDue = new Date(today.getFullYear(), today.getMonth(), dueDay);
+    
+    if (currentMonthDue < today) {
+      currentMonthDue.setMonth(currentMonthDue.getMonth() + 1);
+    }
+    return currentMonthDue;
+  }
+
+  calculatePaymentSchedule(lease: Lease, numberOfPayments: number = 12): Date[] {
+    const schedule: Date[] = [];
+    let currentDate = new Date(lease.startDate);
+    const dueDay = lease.paymentDueDay || 1;
+
+    for (let i = 0; i < numberOfPayments; i++) {
+      const dueDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dueDay);
+
+      if (dueDate < currentDate) {
+        dueDate.setMonth(dueDate.getMonth() + 1);
+      }
+
+      schedule.push(dueDate);
+
+      switch (lease.paymentFrequency) {
+        case 'monthly':
+          currentDate.setMonth(currentDate.getMonth() + 1);
+          break;
+        case 'quarterly':
+          currentDate.setMonth(currentDate.getMonth() + 3);
+          break;
+        case 'semi_annually':
+          currentDate.setMonth(currentDate.getMonth() + 6);
+          break;
+        case 'annually':
+          currentDate.setFullYear(currentDate.getFullYear() + 1);
+          break;
+      }
+    }
+
+    return schedule;
+  }
+
+  getRenewalDate(lease: Lease): Date {
+    const renewal = new Date(lease.endDate);
+    renewal.setDate(renewal.getDate() + 1);
+    return renewal;
+  }
 }

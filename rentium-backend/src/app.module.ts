@@ -11,6 +11,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { DamagesModule } from './modules/damages/damages.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { TenantPortalModule } from './modules/tenant-portal/tenant-portal.module';
+import { MaintenanceRequestsModule } from './modules/maintenance-requests/maintenance-requests.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { TenantPortalModule } from './modules/tenant-portal/tenant-portal.module
     DamagesModule,
     ReportsModule,
     TenantPortalModule,
+    MaintenanceRequestsModule,
   ],
 })
 export class AppModule {}

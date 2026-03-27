@@ -7,6 +7,7 @@ import { PortalDashboardComponent } from './dashboard/portal-dashboard.component
 import { PortalLeaseComponent } from './lease/portal-lease.component';
 import { PortalPaymentsComponent } from './payments/portal-payments.component';
 import { PortalInvoicesComponent } from './invoices/portal-invoices.component';
+import { PortalMaintenanceRequestsComponent } from './maintenance-requests/portal-maintenance-requests.component';
 import { TenantPortalAuthGuard } from './shared/guards/tenant-portal-auth.guard';
 
 const routes: Routes = [
@@ -22,6 +23,7 @@ const routes: Routes = [
       { path: 'lease', component: PortalLeaseComponent },
       { path: 'payments', component: PortalPaymentsComponent },
       { path: 'invoices', component: PortalInvoicesComponent },
+      { path: 'maintenance-requests', component: PortalMaintenanceRequestsComponent },
     ],
   },
 ];

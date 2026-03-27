@@ -6,6 +6,7 @@ export enum RentiumUserRole {
   ADMIN = 'admin',
   MANAGER = 'manager',
   AGENT = 'agent',
+  TENANT = 'tenant',
 }
 
 export enum Permission {
@@ -22,6 +23,7 @@ export enum Permission {
   CREATE_LEASES = 'create_leases',
   EDIT_LEASES = 'edit_leases',
   DELETE_LEASES = 'delete_leases',
+  SIGN_LEASE = 'sign_lease',
   VIEW_PAYMENTS = 'view_payments',
   CREATE_PAYMENTS = 'create_payments',
   EDIT_PAYMENTS = 'edit_payments',
@@ -36,6 +38,9 @@ export enum Permission {
   CREATE_USERS = 'create_users',
   EDIT_USERS = 'edit_users',
   DELETE_USERS = 'delete_users',
+  CREATE_MAINTENANCE_REQUESTS = 'create_maintenance_requests',
+  VIEW_MAINTENANCE_REQUESTS = 'view_maintenance_requests',
+  EDIT_MAINTENANCE_REQUESTS = 'edit_maintenance_requests',
 }
 
 export const ALL_PERMISSIONS = Object.values(Permission);
@@ -74,6 +79,18 @@ export const DEFAULT_AGENT_PERMISSIONS = [
   Permission.VIEW_DAMAGES,
   Permission.CREATE_DAMAGES,
   Permission.VIEW_REPORTS,
+];
+
+export const DEFAULT_TENANT_PERMISSIONS = [
+  Permission.VIEW_DASHBOARD,
+  Permission.VIEW_LEASES,
+  Permission.SIGN_LEASE,
+  Permission.VIEW_PAYMENTS,
+  Permission.VIEW_DAMAGES,
+  Permission.CREATE_DAMAGES,
+  Permission.CREATE_MAINTENANCE_REQUESTS,
+  Permission.VIEW_MAINTENANCE_REQUESTS,
+  Permission.EDIT_MAINTENANCE_REQUESTS,
 ];
 
 @Schema({ timestamps: true })

@@ -1,4 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { UnitsService, Unit } from '../../../shared/services/units/units.service';
 import { PropertiesService } from '../../../shared/services/properties/properties.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
@@ -8,6 +10,8 @@ import { Property, PaginatedResponse } from '../../../shared/interfaces/models';
   selector: 'app-units-form',
   templateUrl: './units-form.component.html',
   styleUrls: ['./units-form.component.scss'],
+  standalone: true,
+  imports: [FormsModule, CommonModule],
 })
 export class UnitsFormComponent implements OnInit {
   @Input() isOpen = false;

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { AuthResponse, RentiumUser, Tenant } from '../../interfaces/models';
+import { AuthResponse, RentiumUser, RentiumPermission, Tenant } from '../../interfaces/models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -123,6 +123,26 @@ export class AuthService {
   isSuperAdmin(): boolean {
     const user = this.getUser();
     return user?.role === 'super_admin';
+  }
+
+  isAdmin(): boolean {
+    const user = this.getUser();
+    return user?.role === 'admin' || user?.role === 'super_admin';
+  }
+
+  isManager(): boolean {
+    const user = this.getUser();
+    return user?.role === 'manager';
+  }
+
+  isTenant(): boolean {
+    const user = this.getUser();
+    return user?.role === 'tenant';
+  }
+
+  hasPermission(permission: RentiumPermission): boolean {
+    const user = this.getUser();
+    return user?.permissions?.includes(permission) || false;
   }
 
   setTenantContext(tenants: Tenant[], activeTenantId = ''): void {

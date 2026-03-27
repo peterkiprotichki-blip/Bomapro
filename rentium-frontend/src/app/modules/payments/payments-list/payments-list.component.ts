@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { PaymentsService } from '../../../shared/services/payments/payments.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
+import { AuthService } from '../../../shared/services/auth/auth.service';
 import { Payment, PaymentStatus, PaymentMethod } from '../../../shared/interfaces/models';
 
 @Component({
@@ -21,6 +22,7 @@ export class PaymentsListComponent implements OnInit {
   totalPages = 0;
   statuses: PaymentStatus[] = ['pending', 'completed', 'failed', 'refunded', 'partial'];
   methods: PaymentMethod[] = ['mpesa', 'bank_transfer', 'cash', 'cheque', 'card', 'other'];
+  isTenant = false;
 
   // Record payment form
   showForm = false;
@@ -31,14 +33,32 @@ export class PaymentsListComponent implements OnInit {
     private paymentsService: PaymentsService,
     public themeService: ThemeService,
     private router: Router,
+    private authService: AuthService,
   ) {}
 
-  ngOnInit(): void { this.loadPayments(); }
+  ngOnInit(): void {
+    const user = this.authService.getUser();
+    this.isTenant = user?.role === 'tenant';
+    this.loadPayments();
+  }
 
   loadPayments(): void {
     this.loading = true;
     this.paymentsService.getAll(this.page, this.limit, this.search || undefined, this.statusFilter || undefined, this.methodFilter || undefined).subscribe({
-      next: (res) => { this.payments = res.data; this.total = res.total; this.totalPages = res.totalPages; this.loading = false; },
+      next: (res) => {
+        // If tenant, filter to show only their payments
+        if (this.isTenant) {
+          const user = this.authService.getUser();
+          this.payments = res.data.filter((payment: any) => {
+            return payment.tenantId === user?._id || payment.propertyTenantId === user?._id;
+          });
+        } else {
+          this.payments = res.data;
+        }
+        this.total = this.payments.length;
+        this.totalPages = Math.ceil(this.total / this.limit);
+        this.loading = false;
+      },
       error: () => { this.loading = false; },
     });
   }

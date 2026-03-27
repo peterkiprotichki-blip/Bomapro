@@ -1,15 +1,23 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { PropertyTenantsService } from '../../../shared/services/property-tenants/property-tenants.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { PropertyTenant } from '../../../shared/interfaces/models';
+import { AddTenantFormComponent } from '../add-tenant-form/add-tenant-form.component';
 
 @Component({
   selector: 'app-tenants-list',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule, AddTenantFormComponent],
   templateUrl: './tenants-list.component.html',
   styleUrls: ['./tenants-list.component.scss'],
 })
 export class TenantsListComponent implements OnInit {
+  @ViewChild(AddTenantFormComponent) addTenantForm!: AddTenantFormComponent;
+
   tenants: PropertyTenant[] = [];
   loading = true;
   search = '';
@@ -17,10 +25,7 @@ export class TenantsListComponent implements OnInit {
   limit = 20;
   total = 0;
   totalPages = 0;
-  showForm = false;
-  editingTenant: PropertyTenant | null = null;
-  saving = false;
-  form: Partial<PropertyTenant> = { name: '', email: '', phone: '', idNumber: '', kraPin: '', occupation: '', employer: '' };
+  Math = Math;
 
   constructor(
     private tenantsService: PropertyTenantsService,
@@ -28,36 +33,57 @@ export class TenantsListComponent implements OnInit {
     private router: Router,
   ) {}
 
-  ngOnInit(): void { this.loadTenants(); }
+  ngOnInit(): void {
+    this.loadTenants();
+  }
 
   loadTenants(): void {
     this.loading = true;
     this.tenantsService.getAll(this.page, this.limit, this.search || undefined).subscribe({
-      next: (res) => { this.tenants = res.data; this.total = res.total; this.totalPages = res.totalPages; this.loading = false; },
-      error: () => { this.loading = false; },
+      next: (res) => {
+        this.tenants = res.data;
+        this.total = res.total;
+        this.totalPages = res.totalPages;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      },
     });
   }
 
-  onSearch(): void { this.page = 1; this.loadTenants(); }
-  goToPage(p: number): void { this.page = p; this.loadTenants(); }
-
-  openForm(tenant?: PropertyTenant): void {
-    this.editingTenant = tenant || null;
-    this.form = tenant ? { ...tenant } : { name: '', email: '', phone: '', idNumber: '', kraPin: '', occupation: '', employer: '' };
-    this.showForm = true;
+  onSearch(): void {
+    this.page = 1;
+    this.loadTenants();
   }
 
-  save(): void {
-    if (!this.form.name) return;
-    this.saving = true;
-    const obs = this.editingTenant
-      ? this.tenantsService.update(this.editingTenant._id, this.form)
-      : this.tenantsService.create(this.form);
-    obs.subscribe({
-      next: () => { this.saving = false; this.showForm = false; this.loadTenants(); },
-      error: () => { this.saving = false; },
-    });
+  goToPage(p: number): void {
+    this.page = p;
+    this.loadTenants();
   }
 
-  viewTenant(id: string): void { this.router.navigate(['/tenants', id]); }
+  openAddTenantForm(): void {
+    this.addTenantForm.open();
+  }
+
+  onTenantCreated(tenant: any): void {
+    this.loadTenants();
+  }
+
+  viewTenant(id: string): void {
+    this.router.navigate(['/tenants', id]);
+  }
+
+  deleteTenant(id: string): void {
+    if (confirm('Are you sure you want to delete this tenant?')) {
+      this.tenantsService.delete(id).subscribe({
+        next: () => {
+          this.loadTenants();
+        },
+        error: (err) => {
+          console.error('Error deleting tenant:', err);
+        },
+      });
+    }
+  }
 }

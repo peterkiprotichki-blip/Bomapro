@@ -3,7 +3,7 @@
 </div>
 
 <div *ngIf="!loading && lease">
-  <!-- Header -->
+  <!-- Header with Actions -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div class="flex items-center gap-3">
       <button (click)="goBack()" class="w-8 h-8 rounded-lg border border-gray-300 dark:border-slate-600 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700">
@@ -11,14 +11,20 @@
       </button>
       <div>
         <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ lease.leaseNumber }}</h1>
-        <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClasses(lease.status)">{{ lease.status }}</span>
+        <div class="flex items-center gap-2 mt-1">
+          <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClasses(lease.status)">{{ lease.status | titlecase }}</span>
+          <span *ngIf="isLeaseExpiring()" class="text-xs text-orange-600 dark:text-orange-400 font-semibold">⚠ Expires in {{ getDaysUntilExpiry() }}d</span>
+        </div>
       </div>
     </div>
-    <div class="flex gap-2">
-      <button *ngIf="lease.status === 'draft'" (click)="activate()" class="px-4 py-2 rounded-lg text-white text-sm font-medium" [style.background-color]="themeService.accent">
+    <div class="flex gap-2 flex-wrap">
+      <button *ngIf="canActivate()" (click)="activate()" class="px-4 py-2 rounded-lg text-white text-sm font-medium" [style.background-color]="themeService.accent">
         <i class="fas fa-check mr-1"></i> Activate
       </button>
-      <button *ngIf="lease.status === 'active'" (click)="showTerminate = true" class="px-4 py-2 rounded-lg border border-orange-300 text-orange-600 text-sm hover:bg-orange-50 dark:border-orange-800 dark:text-orange-400 dark:hover:bg-orange-900/20">
+      <button *ngIf="canRenew()" (click)="renewLease()" class="px-4 py-2 rounded-lg text-white text-sm font-medium" [style.background-color]="themeService.accent">
+        <i class="fas fa-redo mr-1"></i> Renew
+      </button>
+      <button *ngIf="canTerminate()" (click)="showTerminate = true" class="px-4 py-2 rounded-lg border border-orange-300 text-orange-600 text-sm hover:bg-orange-50 dark:border-orange-800 dark:text-orange-400 dark:hover:bg-orange-900/20">
         <i class="fas fa-ban mr-1"></i> Terminate
       </button>
       <button (click)="deleteLease()" class="px-4 py-2 rounded-lg border border-red-300 text-red-600 text-sm hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">
@@ -27,22 +33,65 @@
     </div>
   </div>
 
+  <!-- Timeline Section -->
+  <div class="mb-6 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6">
+    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-6">Lease Timeline</h2>
+    <div class="relative">
+      <div class="absolute left-4 top-0 bottom-0 w-1 bg-gray-200 dark:bg-slate-700"></div>
+      <div class="space-y-6 pl-16">
+        <div *ngFor="let event of leaseTimeline" class="relative">
+          <div class="absolute -left-11 top-1 w-8 h-8 rounded-full flex items-center justify-center" [ngClass]="event.status === 'completed' ? 'bg-green-100 dark:bg-green-900' : 'bg-gray-100 dark:bg-slate-700'">
+            <i class="text-sm" [class]="'fas ' + event.icon" [ngClass]="event.status === 'completed' ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'"></i>
+          </div>
+          <div class="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-3">
+            <p class="font-medium text-gray-800 dark:text-gray-100 text-sm">{{ event.event }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ event.date | date: 'MMM d, y \'at\' h:mm a' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Details -->
     <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6">
       <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Lease Details</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-        <div><span class="text-gray-500 dark:text-gray-400 block">Property</span><a [routerLink]="['/properties', lease.propertyId]" class="font-medium hover:underline" [style.color]="themeService.accent">{{ lease.propertyName }}</a></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">Tenant</span><a [routerLink]="['/tenants', lease.propertyTenantId]" class="font-medium hover:underline" [style.color]="themeService.accent">{{ lease.propertyTenantName }}</a></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">Start Date</span><span class="text-gray-800 dark:text-gray-100">{{ lease.startDate | date:'mediumDate' }}</span></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">End Date</span><span class="text-gray-800 dark:text-gray-100">{{ lease.endDate | date:'mediumDate' }}</span></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">Payment Frequency</span><span class="text-gray-800 dark:text-gray-100 capitalize">{{ lease.paymentFrequency }}</span></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">Due Day</span><span class="text-gray-800 dark:text-gray-100">{{ lease.paymentDueDay }}{{ lease.paymentDueDay === 1 ? 'st' : lease.paymentDueDay === 2 ? 'nd' : lease.paymentDueDay === 3 ? 'rd' : 'th' }} of month</span></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">Grace Period</span><span class="text-gray-800 dark:text-gray-100">{{ lease.gracePeriodDays }} days</span></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">Late Fee</span><span class="text-gray-800 dark:text-gray-100">{{ lease.currency }} {{ lease.lateFeeAmount | number }}</span></div>
+        <div>
+          <span class="text-gray-500 dark:text-gray-400 block text-xs font-medium mb-1">Property</span>
+          <a [routerLink]="['/properties', lease.propertyId]" class="font-medium hover:underline" [style.color]="themeService.accent">{{ lease.propertyName }}</a>
+        </div>
+        <div>
+          <span class="text-gray-500 dark:text-gray-400 block text-xs font-medium mb-1">Tenant</span>
+          <a [routerLink]="['/tenants', lease.propertyTenantId]" class="font-medium hover:underline" [style.color]="themeService.accent">{{ lease.propertyTenantName }}</a>
+        </div>
+        <div>
+          <span class="text-gray-500 dark:text-gray-400 block text-xs font-medium mb-1">Unit</span>
+          <span class="text-gray-800 dark:text-gray-100">{{ lease.unitId || 'N/A' }}</span>
+        </div>
+        <div>
+          <span class="text-gray-500 dark:text-gray-400 block text-xs font-medium mb-1">Lease Period</span>
+          <span class="text-gray-800 dark:text-gray-100">{{ lease.startDate | date: 'MMM d, y' }} – {{ lease.endDate | date: 'MMM d, y' }}</span>
+        </div>
+        <div>
+          <span class="text-gray-500 dark:text-gray-400 block text-xs font-medium mb-1">Payment Frequency</span>
+          <span class="text-gray-800 dark:text-gray-100 capitalize">{{ lease.paymentFrequency | titlecase }}</span>
+        </div>
+        <div>
+          <span class="text-gray-500 dark:text-gray-400 block text-xs font-medium mb-1">Due Day</span>
+          <span class="text-gray-800 dark:text-gray-100">{{ lease.paymentDueDay }}{{ lease.paymentDueDay === 1 ? 'st' : lease.paymentDueDay === 2 ? 'nd' : lease.paymentDueDay === 3 ? 'rd' : 'th' }} of month</span>
+        </div>
+        <div>
+          <span class="text-gray-500 dark:text-gray-400 block text-xs font-medium mb-1">Grace Period</span>
+          <span class="text-gray-800 dark:text-gray-100">{{ lease.gracePeriodDays }} days</span>
+        </div>
+        <div>
+          <span class="text-gray-500 dark:text-gray-400 block text-xs font-medium mb-1">Late Fee</span>
+          <span class="text-gray-800 dark:text-gray-100">{{ lease.currency }} {{ lease.lateFeeAmount | number }}</span>
+        </div>
       </div>
       <div *ngIf="lease.terms" class="mt-4">
-        <span class="text-gray-500 dark:text-gray-400 block text-sm">Terms</span>
+        <span class="text-gray-500 dark:text-gray-400 block text-xs font-medium mb-2">Terms</span>
         <p class="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-line">{{ lease.terms }}</p>
       </div>
       <div *ngIf="lease.terminationReason" class="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
@@ -51,28 +100,46 @@
       </div>
     </div>
 
-    <!-- Financial -->
+    <!-- Financial & Payment Info -->
     <div class="space-y-4">
       <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
-        <div class="text-sm text-gray-500 dark:text-gray-400">Monthly Rent</div>
-        <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ lease.currency }} {{ lease.rentAmount | number }}</div>
+        <div class="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">Monthly Rent</div>
+        <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ lease.currency || 'KES' }} {{ lease.rentAmount | number }}</div>
       </div>
       <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
-        <div class="text-sm text-gray-500 dark:text-gray-400">Deposit</div>
-        <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ lease.currency }} {{ lease.depositAmount | number }}</div>
-        <span class="text-xs" [ngClass]="lease.depositPaid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">{{ lease.depositPaid ? 'Paid' : 'Not Paid' }}</span>
+        <div class="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">Security Deposit</div>
+        <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ lease.currency || 'KES' }} {{ lease.depositAmount | number }}</div>
+        <span class="text-xs mt-2 inline-block" [ngClass]="lease.depositPaid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+          <i class="fas" [class]="lease.depositPaid ? 'fa-check-circle' : 'fa-times-circle'" ></i> {{ lease.depositPaid ? 'Paid' : 'Not Paid' }}
+        </span>
+      </div>
+      <div *ngIf="nextPaymentDue" class="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-900/50 p-4">
+        <div class="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">Next Payment Due</div>
+        <div class="text-lg font-bold text-blue-700 dark:text-blue-300">{{ nextPaymentDue | date: 'MMM d, y' }}</div>
       </div>
       <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
-        <div class="text-sm text-gray-500 dark:text-gray-400">Total Payments</div>
+        <div class="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">Total Payments</div>
         <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ payments.length }}</div>
       </div>
     </div>
   </div>
 
-  <!-- Payments -->
+  <!-- Payment Schedule Preview -->
+  <div *ngIf="paymentSchedule.length > 0" class="mt-6 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6">
+    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Payment Schedule (Next 12 months)</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+      <div *ngFor="let date of paymentSchedule" class="text-center p-2 bg-gray-50 dark:bg-slate-700/50 rounded-lg">
+        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ date | date: 'MMM' }}</p>
+        <p class="text-sm font-bold text-gray-800 dark:text-gray-100">{{ date | date: 'd' }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-500">{{ date | date: 'y' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payments Table -->
   <div class="mt-6 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
     <div class="px-4 py-3 border-b border-gray-200 dark:border-slate-700">
-      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Payments</h2>
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Payment History</h2>
     </div>
     <div class="overflow-x-auto">
       <table *ngIf="payments.length" class="w-full text-sm">
@@ -87,10 +154,16 @@
         </thead>
         <tbody>
           <tr *ngFor="let p of payments" [routerLink]="['/payments', p._id]" class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors">
-            <td class="px-4 py-3 text-gray-800 dark:text-gray-100">{{ p.paymentDate | date:'mediumDate' }}</td>
+            <td class="px-4 py-3 text-gray-800 dark:text-gray-100">{{ p.paymentDate | date: 'mediumDate' }}</td>
             <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize">{{ p.paymentType }}</td>
             <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize">{{ p.paymentMethod }}</td>
-            <td class="px-4 py-3"><span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="{'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': p.status === 'completed', 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400': p.status === 'pending', 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': p.status === 'failed'}">{{ p.status }}</span></td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="{
+                'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': p.status === 'completed',
+                'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400': p.status === 'pending',
+                'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': p.status === 'failed'
+              }">{{ p.status }}</span>
+            </td>
             <td class="px-4 py-3 text-right font-medium text-gray-800 dark:text-gray-100">{{ p.currency }} {{ p.amount | number }}</td>
           </tr>
         </tbody>

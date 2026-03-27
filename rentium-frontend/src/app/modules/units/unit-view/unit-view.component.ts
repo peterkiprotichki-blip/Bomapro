@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { UnitsService, Unit } from '../../../shared/services/units/units.service';
@@ -9,6 +10,8 @@ import { Property } from '../../../shared/interfaces/models';
   selector: 'app-unit-view',
   templateUrl: './unit-view.component.html',
   styleUrls: ['./unit-view.component.scss'],
+  standalone: true,
+  imports: [CommonModule],
   animations: [
     trigger('fadeIn', [
       transition(':enter', [

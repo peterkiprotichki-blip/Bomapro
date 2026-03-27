@@ -1,0 +1,704 @@
+﻿node.exe : Node.js version v25.6.0 detected.
+At C:\Users\Lastborn\AppData\Roaming\npm\ng.ps1:24 char:5
++     & "node$exe"  "$basedir/node_modules/@angular/cli/bin/ng.js" $arg ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Node.js version v25.6.0 detected.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Odd numbered Node.js versions will not enter LTS status and should not be used for production. For more information, please see 
+https://nodejs.org/en/about/previous-releases/.
+- Building...
+
+Application bundle generation failed. [18.273 seconds]
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/properties/property-view/property-view.component.html:27:108:
+      27 Γöé ...900 dark:text-gray-100 break-all">{{ property?.propertyCode }}</p>
+         Γò╡                                                   ~~~~~~~~~~~~
+
+  Error occurs in the template of component PropertyViewComponent.
+
+    src/app/modules/properties/property-view/property-view.component.ts:9:15:
+      9 Γöé   templateUrl: './property-view.component.html',
+        Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/properties/property-view/property-view.component.html:31:151:
+      31 Γöé ...dium gap-1 sm:gap-2" [ngClass]="getStatusColor(property?.status)">
+         Γò╡                                                             ~~~~~~
+
+  Error occurs in the template of component PropertyViewComponent.
+
+    src/app/modules/properties/property-view/property-view.component.ts:9:15:
+      9 Γöé   templateUrl: './property-view.component.html',
+        Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/properties/property-view/property-view.component.html:32:48:
+      32 Γöé             <i [class]="getStatusIcon(property?.status)"></i>
+         Γò╡                                                 ~~~~~~
+
+  Error occurs in the template of component PropertyViewComponent.
+
+    src/app/modules/properties/property-view/property-view.component.ts:9:15:
+      9 Γöé   templateUrl: './property-view.component.html',
+        Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/properties/property-view/property-view.component.html:33:31:
+      33 Γöé             <span>{{ property?.status | titlecase }}</span>
+         Γò╡                                ~~~~~~
+
+  Error occurs in the template of component PropertyViewComponent.
+
+    src/app/modules/properties/property-view/property-view.component.ts:9:15:
+      9 Γöé   templateUrl: './property-view.component.html',
+        Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/properties/property-view/property-view.component.html:42:98:
+      42 Γöé ...-medium text-gray-900 dark:text-gray-100">{{ property?.name }}</p>
+         Γò╡                                                           ~~~~
+
+  Error occurs in the template of component PropertyViewComponent.
+
+    src/app/modules/properties/property-view/property-view.component.ts:9:15:
+      9 Γöé   templateUrl: './property-view.component.html',
+        Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/properties/property-view/property-view.component.html:46:109:
+      46 Γöé ...t-gray-900 dark:text-gray-100 capitalize">{{ property?.type }}</p>
+         Γò╡                                                           ~~~~
+
+  Error occurs in the template of component PropertyViewComponent.
+
+    src/app/modules/properties/property-view/property-view.component.ts:9:15:
+      9 Γöé   templateUrl: './property-view.component.html',
+        Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/properties/property-view/property-view.component.html:53:84:
+      53 Γöé ...t-sm text-gray-900 dark:text-gray-100">{{ property?.address }}</p>
+         Γò╡                                                        ~~~~~~~
+
+  Error occurs in the template of component PropertyViewComponent.
+
+    src/app/modules/properties/property-view/property-view.component.ts:9:15:
+      9 Γöé   templateUrl: './property-view.component.html',
+        Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/properties/property-view/property-view.component.html:60:86:
+      60 Γöé ...xt-gray-900 dark:text-gray-100">{{ property?.owner || 'N/A' }}</p>
+         Γò╡                                                 ~~~~~
+
+  Error occurs in the template of component PropertyViewComponent.
+
+    src/app/modules/properties/property-view/property-view.component.ts:9:15:
+      9 Γöé   templateUrl: './property-view.component.html',
+        Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/properties/property-view/property-view.component.html:64:86:
+      64 Γöé ...ray-900 dark:text-gray-100">{{ property?.yearBuilt || 'N/A' }}</p>
+         Γò╡                                             ~~~~~~~~~
+
+  Error occurs in the template of component PropertyViewComponent.
+
+    src/app/modules/properties/property-view/property-view.component.ts:9:15:
+      9 Γöé   templateUrl: './property-view.component.html',
+        Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/properties/property-view/property-view.component.html:68:86:
+      68 Γöé ... text-gray-900 dark:text-gray-100">{{ property?.floors || 0 }}</p>
+         Γò╡                                                    ~~~~~~
+
+  Error occurs in the template of component PropertyViewComponent.
+
+    src/app/modules/properties/property-view/property-view.component.ts:9:15:
+      9 Γöé   templateUrl: './property-view.component.html',
+        Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/properties/property-view/property-view.component.html:75:84:
+      75 Γöé ... text-gray-900 dark:text-gray-100">{{ property?.description }}</p>
+         Γò╡                                                    ~~~~~~~~~~~
+
+  Error occurs in the template of component PropertyViewComponent.
+
+    src/app/modules/properties/property-view/property-view.component.ts:9:15:
+      9 Γöé   templateUrl: './property-view.component.html',
+        Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:12:84:
+      12 Γöé ...text-gray-800 dark:text-gray-100">Unit {{ unit?.unitNumber }}</h1>
+         Γò╡                                                    ~~~~~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:13:76:
+      13 Γöé ...t-gray-500 dark:text-gray-400">Property {{ unit?.propertyId }}</p>
+         Γò╡                                                     ~~~~~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:34:77:
+      34 Γöé ...edium text-gray-800 dark:text-gray-100">{{ unit?.unitNumber }}</p>
+         Γò╡                                                     ~~~~~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:38:104:
+      38 Γöé ...Class]="getStatusClass(unit?.status)">{{ unit?.status | titleca...
+         Γò╡                                 ~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:38:122:
+      38 Γöé ...atusClass(unit?.status)">{{ unit?.status | titlecase }}</span></p>
+         Γò╡                                      ~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:42:77:
+      42 Γöé ...ark:text-gray-100">{{ unit?.currency || 'KES' }} {{ unit?.rentA...
+         Γò╡                                ~~~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:42:107:
+      42 Γöé ...>{{ unit?.currency || 'KES' }} {{ unit?.rentAmount | number }}</p>
+         Γò╡                                            ~~~~~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:46:77:
+      46 Γöé ...ark:text-gray-100">{{ unit?.currency || 'KES' }} {{ unit?.secur...
+         Γò╡                                ~~~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:46:107:
+      46 Γöé ...nit?.currency || 'KES' }} {{ unit?.securityDeposit | number }}</p>
+         Γò╡                                       ~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:52:76:
+      52 Γöé ...text-gray-800 dark:text-gray-100 mt-1">{{ unit?.description }}</p>
+         Γò╡                                                    ~~~~~~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:63:81:
+      63 Γöé ... text-gray-800 dark:text-gray-100">{{ property?.floors || 0 }}</p>
+         Γò╡                                                    ~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:67:81:
+      67 Γöé ...-gray-800 dark:text-gray-100">{{ property?.type | titlecase }}</p>
+         Γò╡                                               ~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:89:104:
+      89 Γöé ...Class]="getStatusClass(unit?.status)">{{ unit?.status | titleca...
+         Γò╡                                 ~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:89:122:
+      89 Γöé ...atusClass(unit?.status)">{{ unit?.status | titlecase }}</span></p>
+         Γò╡                                      ~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:93:77:
+      93 Γöé ... text-gray-800 dark:text-gray-100">{{ unit?.currentTenantId }}</p>
+         Γò╡                                                ~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:104:64:
+      104 Γöé ...]" [queryParams]="{unitId: unit?._id}" class="flex items-cente...
+          Γò╡                               ~~~~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Γû▓ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' 
+operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/modules/units/unit-detail/unit-detail.component.html:107:49:
+      107 Γöé ...k]="['/properties', unit?.propertyId]" class="flex items-cente...
+          Γò╡                              ~~~~~~~~~~
+
+  Error occurs in the template of component UnitDetailComponent.
+
+    src/app/modules/units/unit-detail/unit-detail.component.ts:12:15:
+      12 Γöé   templateUrl: './unit-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:13:82:
+      13 Γöé ...font-bold text-gray-800 dark:text-gray-100">{{ tenant.name }}</h1>
+         Γò╡                                                          ~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8002: Can't bind to 'ngClass' since it isn't a known property of 'span'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:14:65:
+      14 Γöé ...t-medium" [ngClass]="tenant.isActive ? 'bg-green-100 text-green...
+         Γò╡              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:14:83:
+      14 Γöé ...t-medium" [ngClass]="tenant.isActive ? 'bg-green-100 text-green...
+         Γò╡                                ~~~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:15:20:
+      15 Γöé           {{ tenant.isActive ? 'Active' : 'Inactive' }}
+         Γò╡                     ~~~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:29:135:
+      29 Γöé ...y-800 dark:text-gray-100">{{ tenant.email || 'ΓÇö' }}</span></div>
+         Γò╡                                        ~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:30:135:
+      30 Γöé ...y-800 dark:text-gray-100">{{ tenant.phone || 'ΓÇö' }}</span></div>
+         Γò╡                                        ~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:31:139:
+      31 Γöé ...00 dark:text-gray-100">{{ tenant.idNumber || 'ΓÇö' }}</span></div>
+         Γò╡                                     ~~~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:32:137:
+      32 Γöé ...-800 dark:text-gray-100">{{ tenant.kraPin || 'ΓÇö' }}</span></div>
+         Γò╡                                       ~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:33:140:
+      33 Γöé ... dark:text-gray-100">{{ tenant.occupation || 'ΓÇö' }}</span></div>
+         Γò╡                                   ~~~~~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:34:138:
+      34 Γöé ...00 dark:text-gray-100">{{ tenant.employer || 'ΓÇö' }}</span></div>
+         Γò╡                                     ~~~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:40:136:
+      40 Γöé ...dark:text-gray-100">{{ tenant.emergencyContactName }}</span></div>
+         Γò╡                                  ~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:41:137:
+      41 Γöé ...ark:text-gray-100">{{ tenant.emergencyContactPhone }}</span></div>
+         Γò╡                                 ~~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:42:144:
+      42 Γöé ...t-gray-100">{{ tenant.emergencyContactRelationship }}</span></div>
+         Γò╡                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Object is possibly 'null'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:59:84:
+      59 Γöé ...rk:text-gray-100">{{ tenant.createdAt | date:'mediumDate' }}</div>
+         Γò╡                                ~~~~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8004: No pipe found with name 'date'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:59:96:
+      59 Γöé ...rk:text-gray-100">{{ tenant.createdAt | date:'mediumDate' }}</div>
+         Γò╡                                            ~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Property 'router' is private and only accessible within class 'TenantDetailComponent'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:81:185:
+      81 Γöé ...sition-colors" (click)="$any(router).navigate(['/leases', l._id...
+         Γò╡                                 ~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8004: No pipe found with name 'date'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:85:84:
+      85 Γöé ...xt-gray-300">{{ l.startDate | date:'MMM y' }} ΓÇô {{ l.endDate ...
+         Γò╡                                  ~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8004: No pipe found with name 'date'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:85:117:
+      85 Γöé ...tartDate | date:'MMM y' }} ΓÇô {{ l.endDate | date:'MMM y' }}</td>
+         Γò╡                                              ~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8004: No pipe found with name 'number'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:86:125:
+      86 Γöé ...k:text-gray-100">{{ l.currency }} {{ l.rentAmount | number }}</td>
+         Γò╡                                                        ~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG1: Property 'router' is private and only accessible within class 'TenantDetailComponent'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:111:187:
+      111 Γöé ...ition-colors" (click)="$any(router).navigate(['/payments', p._...
+          Γò╡                                ~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8004: No pipe found with name 'date'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:112:86:
+      112 Γöé ... dark:text-gray-100">{{ p.paymentDate | date:'mediumDate' }}</td>
+          Γò╡                                            ~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8002: Can't bind to 'ngClass' since it isn't a known property of 'span'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:115:91:
+      115 Γöé ...t-medium" [ngClass]="{'bg-green-100 text-green-700 dark:bg-gre...
+          Γò╡              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8004: No pipe found with name 'number'. [plugin angular-compiler]
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.html:116:121:
+      116 Γöé ...dark:text-gray-100">{{ p.currency }} {{ p.amount | number }}</td>
+          Γò╡                                                       ~~~~~~
+
+  Error occurs in the template of component TenantDetailComponent.
+
+    src/app/modules/property-tenants/tenant-detail/tenant-detail.component.ts:11:15:
+      11 Γöé   templateUrl: './tenant-detail.component.html',
+         Γò╡                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+

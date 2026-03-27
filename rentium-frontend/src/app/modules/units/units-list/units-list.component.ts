@@ -1,13 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { UnitsService, Unit, PaginatedResponse } from '../../../shared/services/units/units.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
+import { AuthService } from '../../../shared/services/auth/auth.service';
 import { PropertiesService } from '../../../shared/services/properties/properties.service';
+import { UnitViewComponent } from '../unit-view/unit-view.component';
+import { UnitsFormComponent } from '../units-form/units-form.component';
 
 @Component({
   selector: 'app-units-list',
   templateUrl: './units-list.component.html',
   styleUrls: ['./units-list.component.scss'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule, UnitViewComponent, UnitsFormComponent],
 })
 export class UnitsListComponent implements OnInit {
   units: Unit[] = [];
@@ -20,6 +27,7 @@ export class UnitsListComponent implements OnInit {
   total = 0;
   totalPages = 0;
   propertyMap: { [key: string]: string } = {}; // Cache property names
+  isTenant = false;
 
   statusOptions = ['vacant', 'occupied', 'maintenance', 'reserved'];
   unitTypeOptions = ['bedsitter', 'single_room', 'one_bedroom', 'two_bedroom', 'three_bedroom'];
@@ -35,9 +43,13 @@ export class UnitsListComponent implements OnInit {
     public themeService: ThemeService,
     private router: Router,
     private route: ActivatedRoute,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
+    const user = this.authService.getUser();
+    this.isTenant = user?.role === 'tenant';
+
     this.route.queryParams.subscribe((params) => {
       this.propertyId = params['propertyId'] || '';
       this.loadUnits();
@@ -56,9 +68,18 @@ export class UnitsListComponent implements OnInit {
       )
       .subscribe({
         next: (res) => {
-          this.units = res.data;
-          this.total = res.total;
-          this.totalPages = res.totalPages;
+          // If tenant, filter to show only their units
+          if (this.isTenant) {
+            const user = this.authService.getUser();
+            this.units = res.data.filter((unit: any) => {
+              // Show units where the tenant has an active lease or property tenancy
+              return unit.currentTenantId === user?._id;
+            });
+          } else {
+            this.units = res.data;
+          }
+          this.total = this.units.length;
+          this.totalPages = Math.ceil(this.total / this.limit);
           this.loadPropertiesForUnits();
           this.loading = false;
         },

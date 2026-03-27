@@ -53,6 +53,12 @@ export class LeasesController {
     return this.leasesService.findByPropertyTenant(tenantId, propertyTenantId);
   }
 
+  @Get('by-unit/:unitId')
+  findByUnit(@Req() req, @Param('unitId') unitId: string) {
+    const tenantId = req.user?.tenantId || '';
+    return this.leasesService.findByUnit(tenantId, unitId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req) {
     const tenantId = req.user?.tenantId || '';
@@ -75,6 +81,13 @@ export class LeasesController {
   terminate(@Param('id') id: string, @Body('reason') reason: string, @Req() req) {
     const tenantId = req.user?.tenantId || '';
     return this.leasesService.terminate(id, tenantId, reason);
+  }
+
+  @Put(':id/sign')
+  sign(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    const propertyTenantId = req.user?.propertyTenantId || '';
+    return this.leasesService.signLease(id, propertyTenantId, tenantId);
   }
 
   @Delete(':id')

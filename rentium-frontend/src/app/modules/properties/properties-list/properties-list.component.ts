@@ -1,12 +1,19 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { PropertiesService } from '../../../shared/services/properties/properties.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { Property, PaginatedResponse } from '../../../shared/interfaces/models';
+import { PropertyViewComponent } from '../property-view/property-view.component';
+import { PropertyFormComponent } from '../property-form/property-form.component';
 
 @Component({
   selector: 'app-properties-list',
   templateUrl: './properties-list.component.html',
   styleUrls: ['./properties-list.component.scss'],
+  standalone: true,
+  imports: [FormsModule, CommonModule, RouterModule, PropertyViewComponent, PropertyFormComponent],
 })
 export class PropertiesListComponent implements OnInit {
   properties: Property[] = [];

@@ -22,6 +22,14 @@ export class LeaseRepository extends BaseRepository<Lease> {
     return this.model.find({ tenantId, propertyTenantId, isDeleted: false }).sort({ createdAt: -1 }).exec();
   }
 
+  async findByUnit(tenantId: string, unitId: string): Promise<Lease[]> {
+    return this.model.find({ tenantId, unitId, isDeleted: false }).sort({ createdAt: -1 }).exec();
+  }
+
+  async findActiveByUnit(unitId: string, tenantId: string): Promise<Lease | null> {
+    return this.model.findOne({ unitId, tenantId, status: 'active', isDeleted: false }).exec();
+  }
+
   async findActiveByProperty(propertyId: string): Promise<Lease | null> {
     return this.model.findOne({ propertyId, status: 'active', isDeleted: false }).exec();
   }

@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CommonModule } from '@angular/common';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -37,6 +38,7 @@ import { TenantDetailComponent } from './modules/property-tenants/tenant-detail/
 // Leases
 import { LeasesListComponent } from './modules/leases/leases-list/leases-list.component';
 import { LeaseDetailComponent } from './modules/leases/lease-detail/lease-detail.component';
+import { LeaseFormComponent } from './modules/leases/lease-form/lease-form.component';
 
 // Payments
 import { PaymentsListComponent } from './modules/payments/payments-list/payments-list.component';
@@ -72,18 +74,6 @@ import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
     HeaderComponent,
     LoginComponent,
     DashboardComponent,
-    PropertiesListComponent,
-    PropertyDetailComponent,
-    PropertyFormComponent,
-    PropertyViewComponent,
-    UnitsListComponent,
-    UnitDetailComponent,
-    UnitsFormComponent,
-    UnitViewComponent,
-    TenantsListComponent,
-    TenantDetailComponent,
-    LeasesListComponent,
-    LeaseDetailComponent,
     PaymentsListComponent,
     PaymentDetailComponent,
     DamagesListComponent,
@@ -100,6 +90,7 @@ import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
+    CommonModule,
     ColorPickerComponent,
   ],
   providers: [

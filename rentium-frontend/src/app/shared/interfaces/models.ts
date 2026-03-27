@@ -29,10 +29,14 @@ export interface PropertyTenant {
   phone: string;
   idNumber: string;
   kraPin: string;
-  emergencyContact: { name: string; phone: string; relationship: string };
   occupation: string;
   employer: string;
+  address: string;
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  emergencyContactRelationship?: string;
   avatar: string;
+  notes?: string;
   currentPropertyId: string;
   currentLeaseId: string;
   isActive: boolean;
@@ -50,6 +54,7 @@ export interface Lease {
   _id: string;
   tenantId: string;
   propertyId: string;
+  unitId?: string;
   propertyTenantId: string;
   leaseNumber: string;
   status: LeaseStatus;
@@ -64,6 +69,7 @@ export interface Lease {
   lateFeeAmount: number;
   gracePeriodDays: number;
   terms: string;
+  notes: string;
   documents: string[];
   terminatedAt: string;
   terminationReason: string;
@@ -143,17 +149,18 @@ export type RentiumPermission =
   | 'view_dashboard'
   | 'view_properties' | 'create_properties' | 'edit_properties' | 'delete_properties'
   | 'view_tenants' | 'create_tenants' | 'edit_tenants' | 'delete_tenants'
-  | 'view_leases' | 'create_leases' | 'edit_leases' | 'delete_leases'
+  | 'view_leases' | 'create_leases' | 'edit_leases' | 'delete_leases' | 'view_lease_details' | 'sign_leases'
   | 'view_payments' | 'create_payments' | 'edit_payments' | 'delete_payments'
   | 'view_damages' | 'create_damages' | 'edit_damages' | 'delete_damages'
   | 'view_reports'
-  | 'view_users' | 'create_users' | 'edit_users' | 'delete_users';
+  | 'view_users' | 'create_users' | 'edit_users' | 'delete_users'
+  | 'view_maintenance_requests' | 'create_maintenance_requests' | 'edit_maintenance_requests' | 'delete_maintenance_requests';
 
 export interface RentiumUser {
   _id: string;
   name: string;
   email: string;
-  role: 'super_admin' | 'admin' | 'manager' | 'agent';
+  role: 'super_admin' | 'admin' | 'manager' | 'agent' | 'tenant';
   isActive: boolean;
   assignedPropertyIds: string[];
   permissions: RentiumPermission[];

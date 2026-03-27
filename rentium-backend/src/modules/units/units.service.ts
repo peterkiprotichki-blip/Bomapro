@@ -98,4 +98,8 @@ export class UnitsService {
   async findByPropertyTenant(propertyTenantId: string, tenantId: string) {
     return this.unitRepository.findByPropertyTenant(propertyTenantId, tenantId);
   }
+
+  async findAvailableByProperty(propertyId: string, tenantId: string) {
+    return this.unitRepository.findAvailable(propertyId, tenantId);
+  }
 }

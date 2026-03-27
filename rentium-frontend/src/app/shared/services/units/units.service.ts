@@ -61,6 +61,10 @@ export class UnitsService {
     return this.http.get<Unit[]>(`${this.apiUrl}/property/${propertyId}`);
   }
 
+  findAvailableByProperty(propertyId: string): Observable<Unit[]> {
+    return this.http.get<Unit[]>(`${this.apiUrl}/available/${propertyId}`);
+  }
+
   create(data: Partial<Unit>): Observable<Unit> {
     return this.http.post<Unit>(this.apiUrl, data);
   }

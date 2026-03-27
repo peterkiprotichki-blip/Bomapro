@@ -48,6 +48,12 @@ export class UnitsController {
     return this.unitsService.findByProperty(propertyId, tenantId);
   }
 
+  @Get('available/:propertyId')
+  findAvailable(@Param('propertyId') propertyId: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.unitsService.findAvailableByProperty(propertyId, tenantId);
+  }
+
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateUnitDto, @Req() req) {
     const tenantId = req.user?.tenantId || '';

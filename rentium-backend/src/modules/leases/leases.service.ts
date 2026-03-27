@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, Inject } from '@nes
 import { LeaseRepository } from './repositories/lease.repository';
 import { CreateLeaseDto, UpdateLeaseDto } from './dto/lease.dto';
 import { UnitsService } from '../units/units.service';
+import { PropertyTenantsService } from '../property-tenants/property-tenants.service';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -9,21 +10,60 @@ export class LeasesService {
   constructor(
     private readonly leaseRepository: LeaseRepository,
     private readonly unitsService: UnitsService,
+    private readonly propertyTenantsService: PropertyTenantsService,
   ) {}
 
   async create(dto: CreateLeaseDto, tenantId: string) {
-    const activeLease = await this.leaseRepository.findActiveByProperty(dto.propertyId);
-    if (activeLease) {
-      throw new BadRequestException('Property already has an active lease');
+    // Validate unit exists and is available
+    if (dto.unitId) {
+      const activeLease = await this.leaseRepository.findActiveByUnit(dto.unitId, tenantId);
+      if (activeLease) {
+        throw new BadRequestException('This unit already has an active lease');
+      }
+    }
+
+    // Validate property tenant exists and doesn't have active lease
+    if (dto.propertyTenantId) {
+      try {
+        const propertyTenant = await this.propertyTenantsService.findById(dto.propertyTenantId, tenantId);
+        if (!propertyTenant) {
+          throw new BadRequestException('Property tenant not found');
+        }
+        if (propertyTenant.currentLeaseId) {
+          throw new BadRequestException('This tenant already has an active lease. Please terminate the existing lease first.');
+        }
+      } catch (error) {
+        if (error instanceof BadRequestException) {
+          throw error;
+        }
+        throw new BadRequestException('Unable to validate property tenant');
+      }
     }
 
     const leaseNumber = `LS-${Date.now().toString(36).toUpperCase()}`;
-    return this.leaseRepository.create({
+    const createdLease = await this.leaseRepository.create({
       ...dto,
       tenantId,
       leaseNumber,
       status: 'draft',
     } as any);
+
+    // Update unit status to "occupied" if lease is created
+    if (dto.unitId && createdLease._id) {
+      try {
+        await this.unitsService.assignTenant(
+          dto.unitId,
+          tenantId,
+          dto.propertyTenantId,
+          createdLease._id.toString(),
+        );
+      } catch (error) {
+        // Log error but don't fail lease creation
+        console.error('Failed to update unit occupancy during lease creation:', error.message);
+      }
+    }
+
+    return createdLease;
   }
 
   async findAll(tenantId: string, page = 1, limit = 20, search?: string, status?: string) {
@@ -59,12 +99,19 @@ export class LeasesService {
     return this.leaseRepository.findExpiringSoon(tenantId, days);
   }
 
+  async findByUnit(tenantId: string, unitId: string) {
+    return this.leaseRepository.findByUnit(tenantId, unitId);
+  }
+
   async activate(id: string, tenantId: string) {
     const lease = await this.findById(id, tenantId);
 
-    const activeLease = await this.leaseRepository.findActiveByProperty(lease.propertyId || '');
-    if (activeLease && activeLease._id.toString() !== id) {
-      throw new BadRequestException('Property already has an active lease');
+    // Check if unit already has an active lease
+    if (lease.unitId) {
+      const activeLease = await this.leaseRepository.findActiveByUnit(lease.unitId, tenantId);
+      if (activeLease && activeLease._id.toString() !== id) {
+        throw new BadRequestException('This unit already has an active lease');
+      }
     }
 
     const updated = await this.leaseRepository.update(id, { status: 'active' } as any);
@@ -114,6 +161,23 @@ export class LeasesService {
   async remove(id: string, tenantId: string) {
     await this.findById(id, tenantId);
     return this.leaseRepository.delete(id);
+  }
+
+  async signLease(id: string, propertyTenantId: string, tenantId: string) {
+    const lease = await this.findById(id, tenantId);
+    
+    // Validate that the tenant signing is the one on the lease
+    if (lease.propertyTenantId !== propertyTenantId) {
+      throw new BadRequestException('You cannot sign this lease');
+    }
+
+    const updated = await this.leaseRepository.update(id, {
+      isSigned: true,
+      signedAt: new Date(),
+      signedByPropertyTenantId: propertyTenantId,
+    } as any);
+
+    return updated;
   }
 
   async getStats(tenantId: string) {

@@ -21,6 +21,7 @@ import { UsersListComponent } from './modules/users/users-list/users-list.compon
 import { SettingsComponent } from './modules/settings/settings.component';
 import { SystemTenantsComponent } from './modules/system-tenants/system-tenants.component';
 import { AuthGuard } from './shared/guards/auth.guard';
+import { RoleGuard } from './shared/guards/role.guard';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -31,24 +32,24 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'properties', component: PropertiesListComponent },
-      { path: 'properties/new', component: PropertyFormComponent },
-      { path: 'properties/:id', component: PropertyDetailComponent },
-      { path: 'properties/:id/edit', component: PropertyFormComponent },
-      { path: 'units', component: UnitsListComponent },
-      { path: 'units/:id', component: UnitDetailComponent },
-      { path: 'tenants', component: TenantsListComponent },
-      { path: 'tenants/:id', component: TenantDetailComponent },
+      { path: 'properties', component: PropertiesListComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'admin', 'manager', 'agent'] } },
+      { path: 'properties/new', component: PropertyFormComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'admin', 'manager', 'agent'] } },
+      { path: 'properties/:id', component: PropertyDetailComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'admin', 'manager', 'agent'] } },
+      { path: 'properties/:id/edit', component: PropertyFormComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'admin', 'manager', 'agent'] } },
+      { path: 'units', component: UnitsListComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'admin', 'manager', 'agent'] } },
+      { path: 'units/:id', component: UnitDetailComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'admin', 'manager', 'agent'] } },
+      { path: 'tenants', component: TenantsListComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'admin', 'manager'] } },
+      { path: 'tenants/:id', component: TenantDetailComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'admin', 'manager'] } },
       { path: 'leases', component: LeasesListComponent },
       { path: 'leases/:id', component: LeaseDetailComponent },
       { path: 'payments', component: PaymentsListComponent },
       { path: 'payments/:id', component: PaymentDetailComponent },
-      { path: 'damages', component: DamagesListComponent },
-      { path: 'damages/:id', component: DamageDetailComponent },
-      { path: 'reports', component: ReportsComponent },
-      { path: 'users', component: UsersListComponent },
-      { path: 'settings', component: SettingsComponent },
-      { path: 'system-tenants', component: SystemTenantsComponent },
+      { path: 'damages', component: DamagesListComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'admin', 'manager', 'agent'] } },
+      { path: 'damages/:id', component: DamageDetailComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'admin', 'manager', 'agent'] } },
+      { path: 'reports', component: ReportsComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'admin', 'manager'] } },
+      { path: 'users', component: UsersListComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'admin'] } },
+      { path: 'settings', component: SettingsComponent, canActivate: [RoleGuard], data: { roles: ['super_admin', 'admin'] } },
+      { path: 'system-tenants', component: SystemTenantsComponent, canActivate: [RoleGuard], data: { roles: ['super_admin'] } },
     ],
   },
   // Tenant Portal — lazy-loaded, separate auth

@@ -1,7 +1,7 @@
 <div>
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Payments</h1>
-    <button (click)="openForm()" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium" [style.background-color]="themeService.accent">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ isTenant ? 'My Payments' : 'Payments' }}</h1>
+    <button *ngIf="!isTenant" (click)="openForm()" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium" [style.background-color]="themeService.accent">
       <i class="fas fa-plus"></i> Record Payment
     </button>
   </div>
@@ -9,11 +9,11 @@
   <!-- Filters -->
   <div class="flex flex-col sm:flex-row gap-3 mb-6">
     <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()" placeholder="Search payments..." class="w-full sm:w-80 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none" />
-    <select [(ngModel)]="statusFilter" (change)="onFilterChange()" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none">
+    <select *ngIf="!isTenant" [(ngModel)]="statusFilter" (change)="onFilterChange()" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none">
       <option value="">All Statuses</option>
       <option *ngFor="let s of statuses" [value]="s">{{ s | titlecase }}</option>
     </select>
-    <select [(ngModel)]="methodFilter" (change)="onFilterChange()" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none">
+    <select *ngIf="!isTenant" [(ngModel)]="methodFilter" (change)="onFilterChange()" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none">
       <option value="">All Methods</option>
       <option *ngFor="let m of methods" [value]="m">{{ m | titlecase }}</option>
     </select>

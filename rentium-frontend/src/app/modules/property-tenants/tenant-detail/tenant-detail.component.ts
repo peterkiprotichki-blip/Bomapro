@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { PropertyTenantsService } from '../../../shared/services/property-tenants/property-tenants.service';
 import { LeasesService } from '../../../shared/services/leases/leases.service';
 import { PaymentsService } from '../../../shared/services/payments/payments.service';
@@ -8,6 +9,8 @@ import { PropertyTenant, Lease, Payment } from '../../../shared/interfaces/model
 
 @Component({
   selector: 'app-tenant-detail',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './tenant-detail.component.html',
   styleUrls: ['./tenant-detail.component.scss'],
 })
@@ -19,7 +22,7 @@ export class TenantDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
+    public router: Router,
     private tenantsService: PropertyTenantsService,
     private leasesService: LeasesService,
     private paymentsService: PaymentsService,
