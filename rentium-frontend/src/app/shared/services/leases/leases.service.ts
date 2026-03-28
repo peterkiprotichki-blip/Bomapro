@@ -102,6 +102,7 @@ export class LeasesService {
   }
 
   getRenewalDate(lease: Lease): Date {
+    if (!lease.endDate) throw new Error('Lease endDate is required');
     const renewal = new Date(lease.endDate);
     renewal.setDate(renewal.getDate() + 1);
     return renewal;

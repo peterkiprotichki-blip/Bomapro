@@ -59,7 +59,7 @@ export interface Lease {
   leaseNumber: string;
   status: LeaseStatus;
   startDate: string;
-  endDate: string;
+  endDate?: string;
   rentAmount: number;
   currency: string;
   depositAmount: number;
@@ -76,6 +76,7 @@ export interface Lease {
   renewedFromLeaseId: string;
   propertyName: string;
   propertyTenantName: string;
+  unitNumber?: string;
   createdAt: string;
   updatedAt: string;
 }

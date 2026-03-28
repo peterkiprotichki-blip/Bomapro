@@ -39,8 +39,8 @@ export class Lease extends BaseDocument {
   @Prop({ required: true })
   startDate: Date;
 
-  @Prop({ required: true })
-  endDate: Date;
+  @Prop({ required: false })
+  endDate?: Date;
 
   @Prop({ required: true })
   rentAmount: number;

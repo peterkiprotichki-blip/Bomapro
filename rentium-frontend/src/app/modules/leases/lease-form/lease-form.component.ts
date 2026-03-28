@@ -177,7 +177,7 @@ export class LeaseFormComponent implements OnInit, OnChanges {
   onSubmit(): void {
     this.submitted = true;
 
-    if (!this.form.propertyId || !this.form.unitId || !this.form.propertyTenantId || !this.form.startDate || !this.form.endDate) {
+    if (!this.form.propertyId || !this.form.unitId || !this.form.propertyTenantId || !this.form.startDate) {
       return;
     }
 

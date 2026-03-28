@@ -7,6 +7,7 @@ export interface Unit {
   _id?: string;
   tenantId?: string;
   propertyId: string;
+  propertyName?: string;
   unitNumber: string;
   description?: string;
   unitType?: string;
@@ -19,6 +20,7 @@ export interface Unit {
   waterMeterNumber?: string;
   rentCycle?: string;
   currentTenantId?: string;
+  currentTenantName?: string;
   currentLeaseId?: string;
   currentPropertyTenantId?: string;
   createdAt?: Date;

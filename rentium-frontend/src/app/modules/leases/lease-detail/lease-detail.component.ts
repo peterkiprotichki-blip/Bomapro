@@ -5,16 +5,19 @@ import { FormsModule } from '@angular/forms';
 import { LeasesService } from '../../../shared/services/leases/leases.service';
 import { PropertiesService } from '../../../shared/services/properties/properties.service';
 import { PropertyTenantsService } from '../../../shared/services/property-tenants/property-tenants.service';
+import { UnitsService } from '../../../shared/services/units/units.service';
 import { PaymentsService } from '../../../shared/services/payments/payments.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { Lease, Payment } from '../../../shared/interfaces/models';
+import { PaymentFormComponent } from '../../payments/payment-form/payment-form.component';
+import { PaymentHistoryComponent } from '../../payments/payment-history/payment-history.component';
 
 @Component({
   selector: 'app-lease-detail',
   templateUrl: './lease-detail.component.html',
   styleUrls: ['./lease-detail.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaymentFormComponent, PaymentHistoryComponent],
 })
 export class LeaseDetailComponent implements OnInit {
   lease: Lease | null = null;
@@ -25,6 +28,7 @@ export class LeaseDetailComponent implements OnInit {
   nextPaymentDue: Date | null = null;
   paymentSchedule: Date[] = [];
   leaseTimeline: any[] = [];
+  showPaymentForm = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -32,6 +36,7 @@ export class LeaseDetailComponent implements OnInit {
     private leasesService: LeasesService,
     private propertiesService: PropertiesService,
     private propertyTenantsService: PropertyTenantsService,
+    private unitsService: UnitsService,
     private paymentsService: PaymentsService,
     public themeService: ThemeService,
   ) {}
@@ -74,6 +79,18 @@ export class LeaseDetailComponent implements OnInit {
             error: (err) => console.error('Error loading tenant:', err),
           });
         }
+        
+        // Load unit number
+        if (this.lease.unitId) {
+          this.unitsService.getById(this.lease.unitId).subscribe({
+            next: (unit) => {
+              if (this.lease) {
+                this.lease.unitNumber = unit.unitNumber;
+              }
+            },
+            error: (err) => console.error('Error loading unit:', err),
+          });
+        }
       },
       error: () => { this.loading = false; },
     });
@@ -106,13 +123,13 @@ export class LeaseDetailComponent implements OnInit {
         date: this.lease.startDate,
         event: 'Lease Starts',
         icon: 'fa-play-circle',
-        status: new Date() >= new Date(this.lease.startDate) ? 'completed' : 'pending',
+        status: new Date() >= new Date(this.lease.startDate || '') ? 'completed' : 'pending',
       },
       {
         date: this.lease.endDate,
         event: 'Lease Ends',
         icon: 'fa-stop-circle',
-        status: new Date() >= new Date(this.lease.endDate) ? 'completed' : 'pending',
+        status: new Date() >= new Date(this.lease.endDate || '') ? 'completed' : 'pending',
       },
       ...(this.lease.terminatedAt ? [{
         date: this.lease.terminatedAt,
@@ -120,11 +137,11 @@ export class LeaseDetailComponent implements OnInit {
         icon: 'fa-times-circle',
         status: 'completed',
       }] : []),
-    ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    ].sort((a, b) => new Date(a.date || '').getTime() - new Date(b.date || '').getTime());
   }
 
   renewLease(): void {
-    if (!this.lease || !confirm('Create renewal lease?')) return;
+    if (!this.lease || !this.lease.endDate || !confirm('Create renewal lease?')) return;
 
     const startDate = new Date(this.lease.endDate);
     startDate.setDate(startDate.getDate() + 1);
@@ -163,7 +180,7 @@ export class LeaseDetailComponent implements OnInit {
   }
 
   getDaysUntilExpiry(): number {
-    if (!this.lease) return -1;
+    if (!this.lease || !this.lease.endDate) return -1;
     const today = new Date();
     const end = new Date(this.lease.endDate);
     return Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
@@ -180,6 +197,22 @@ export class LeaseDetailComponent implements OnInit {
 
   canActivate(): boolean {
     return this.lease?.status === 'draft';
+  }
+
+  openPaymentForm(): void {
+    this.showPaymentForm = true;
+  }
+
+  closePaymentForm(): void {
+    this.showPaymentForm = false;
+  }
+
+  onPaymentSaved(payment: Payment): void {
+    if (!this.payments) {
+      this.payments = [];
+    }
+    this.payments.unshift(payment);
+    alert('Payment recorded successfully!');
   }
 
   canTerminate(): boolean {

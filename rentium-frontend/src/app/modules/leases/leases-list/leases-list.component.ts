@@ -3,6 +3,8 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LeasesService } from '../../../shared/services/leases/leases.service';
+import { UnitsService } from '../../../shared/services/units/units.service';
+import { PropertyTenantsService } from '../../../shared/services/property-tenants/property-tenants.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { AuthService } from '../../../shared/services/auth/auth.service';
 import { Lease, LeaseStatus } from '../../../shared/interfaces/models';
@@ -33,6 +35,8 @@ export class LeasesListComponent implements OnInit {
 
   constructor(
     private leasesService: LeasesService,
+    private unitsService: UnitsService,
+    private propertyTenantsService: PropertyTenantsService,
     public themeService: ThemeService,
     private router: Router,
     private authService: AuthService,
@@ -65,6 +69,26 @@ export class LeasesListComponent implements OnInit {
         }
         this.total = this.leases.length;
         this.totalPages = Math.ceil(this.total / this.limit);
+        
+        // Fetch unit numbers and tenant names for each lease
+        this.leases.forEach((lease) => {
+          if (lease.unitId && !lease.unitNumber) {
+            this.unitsService.getById(lease.unitId).subscribe({
+              next: (unit) => {
+                lease.unitNumber = unit.unitNumber;
+              },
+              error: (err) => console.error('Error loading unit:', err),
+            });
+          }
+          if (lease.propertyTenantId && !lease.propertyTenantName) {
+            this.propertyTenantsService.getById(lease.propertyTenantId).subscribe({
+              next: (tenant) => {
+                lease.propertyTenantName = tenant.name;
+              },
+              error: (err) => console.error('Error loading tenant:', err),
+            });
+          }
+        });
  
         this.loading = false; 
       },
@@ -117,7 +141,7 @@ export class LeasesListComponent implements OnInit {
   }
 
   renewLease(lease: Lease): void {
-    if (!confirm(`Create renewal lease for ${lease.leaseNumber}?`)) return;
+    if (!lease.endDate || !confirm(`Create renewal lease for ${lease.leaseNumber}?`)) return;
 
     const startDate = new Date(lease.endDate);
     startDate.setDate(startDate.getDate() + 1);

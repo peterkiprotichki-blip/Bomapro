@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { UnitsService, Unit } from '../../../shared/services/units/units.service';
 import { PropertiesService } from '../../../shared/services/properties/properties.service';
+import { PropertyTenantsService } from '../../../shared/services/property-tenants/property-tenants.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { Property } from '../../../shared/interfaces/models';
 import { UnitsFormComponent } from '../units-form/units-form.component';
@@ -25,6 +26,7 @@ export class UnitDetailComponent implements OnInit {
   constructor(
     private unitsService: UnitsService,
     private propertiesService: PropertiesService,
+    private propertyTenantsService: PropertyTenantsService,
     public themeService: ThemeService,
     private route: ActivatedRoute,
     private router: Router,
@@ -47,6 +49,17 @@ export class UnitDetailComponent implements OnInit {
         } else {
           this.loading = false;
         }
+        // Load tenant name if assigned
+        if (unit.currentTenantId) {
+          this.propertyTenantsService.getById(unit.currentTenantId).subscribe({
+            next: (tenant) => {
+              if (this.unit) {
+                this.unit.currentTenantName = tenant.name;
+              }
+            },
+            error: (err) => console.error('Load tenant error:', err),
+          });
+        }
       },
       error: (err) => {
         console.error('Load error:', err);
@@ -59,6 +72,9 @@ export class UnitDetailComponent implements OnInit {
     this.propertiesService.getById(propertyId).subscribe({
       next: (property) => {
         this.property = property;
+        if (this.unit) {
+          this.unit.propertyName = property.name;
+        }
         this.loading = false;
       },
       error: (err) => {

@@ -141,7 +141,7 @@
         </div>
 
         <!-- Attachments -->
-        <div *ngIf="selectedRequest.attachments?.length">
+        <div *ngIf="selectedRequest.attachments && selectedRequest.attachments.length">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Attachments</label>
           <div class="flex gap-2">
             <a *ngFor="let att of selectedRequest.attachments" [href]="att" target="_blank" class="px-3 py-1 bg-gray-100 dark:bg-slate-700 rounded text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400">
