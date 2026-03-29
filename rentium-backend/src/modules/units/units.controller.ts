@@ -26,9 +26,10 @@ export class UnitsController {
     @Query('status') status?: string,
     @Query('search') search?: string,
     @Query('unitType') unitType?: string,
+    @Query('floor') floor?: string,
   ) {
     const tenantId = req.user?.tenantId || '';
-    return this.unitsService.findAll(tenantId, page, limit, propertyId, status, search, unitType);
+    return this.unitsService.findAll(tenantId, page, limit, propertyId, status, search, unitType, floor);
   }
 
   @Get('stats')

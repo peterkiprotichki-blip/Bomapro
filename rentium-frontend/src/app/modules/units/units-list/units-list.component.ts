@@ -25,12 +25,14 @@ export class UnitsListComponent implements OnInit {
   urlPropertyId = ''; // URL-driven property scope
   statusFilter = '';
   unitTypeFilter = '';
+  floorFilter = '';
   page = 1;
   limit = 20;
   total = 0;
   totalPages = 0;
   propertyMap: { [key: string]: string } = {}; // Cache property names
   propertyOptions: Pick<Property, '_id' | 'name'>[] = [];
+  floorOptions: (string | number)[] = [];
   isTenant = false;
   propertyOptionsLoaded = false;
 
@@ -69,6 +71,15 @@ export class UnitsListComponent implements OnInit {
     this.loading = true;
     // Use URL property scope first, then fall back to user filter
     const propertyIdToSend = this.urlPropertyId || this.propertyIdFilter || undefined;
+    
+    // Ensure floor filter is properly converted to string or undefined
+    let floorToSend: string | undefined;
+    if (this.floorFilter !== null && this.floorFilter !== undefined && this.floorFilter !== '') {
+      floorToSend = String(this.floorFilter);
+    }
+    
+    console.log('Loading units with filters:', { propertyIdToSend, statusFilter: this.statusFilter, unitTypeFilter: this.unitTypeFilter, floor: floorToSend });
+    
     this.unitsService
       .getAll(
         this.page,
@@ -77,6 +88,7 @@ export class UnitsListComponent implements OnInit {
         this.statusFilter || undefined,
         this.search || undefined,
         this.unitTypeFilter || undefined,
+        floorToSend,
       )
       .subscribe({
         next: (res) => {
@@ -92,6 +104,7 @@ export class UnitsListComponent implements OnInit {
           }
           this.total = this.units.length;
           this.totalPages = Math.ceil(this.total / this.limit);
+          this.updateFloorOptions();
           this.loading = false;
         },
         error: () => {
@@ -140,6 +153,26 @@ export class UnitsListComponent implements OnInit {
     const suffixes = ['th', 'st', 'nd', 'rd'];
     const v = floorNum % 100;
     return floorNum + (suffixes[(v - 20) % 10] || suffixes[v] || suffixes[0]);
+  }
+
+  updateFloorOptions(): void {
+    // Extract unique floor values from loaded units
+    const floors = this.units
+      .map(u => u.floor)
+      .filter((f): f is string | number => f !== undefined && f !== null);
+    const uniqueFloors = Array.from(new Set(floors));
+    
+    // Sort floors: G/0 first, then numerically
+    this.floorOptions = uniqueFloors.sort((a, b) => {
+      const aIsGround = a === 'G' || a === 0;
+      const bIsGround = b === 'G' || b === 0;
+      if (aIsGround && !bIsGround) return -1;
+      if (!aIsGround && bIsGround) return 1;
+      if (aIsGround && bIsGround) return 0;
+      const aNum = typeof a === 'string' ? parseInt(a, 10) : a;
+      const bNum = typeof b === 'string' ? parseInt(b, 10) : b;
+      return aNum - bNum;
+    });
   }
 
   onSearch(): void {

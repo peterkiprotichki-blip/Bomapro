@@ -25,6 +25,10 @@
       <option value="">All Types</option>
       <option *ngFor="let t of unitTypeOptions" [value]="t">{{ getUnitTypeLabel(t) }}</option>
     </select>
+    <select [(ngModel)]="floorFilter" (change)="onFilterChange()" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none">
+      <option value="">All Floors</option>
+      <option *ngFor="let f of floorOptions" [value]="f">{{ getFloorLabel(f) }}</option>
+    </select>
     <select [(ngModel)]="statusFilter" (change)="onFilterChange()" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none">
       <option value="">All Status</option>
       <option *ngFor="let s of statusOptions" [value]="s">{{ s | titlecase }}</option>

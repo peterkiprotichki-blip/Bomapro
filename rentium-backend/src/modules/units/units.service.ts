@@ -24,11 +24,33 @@ export class UnitsService {
     status?: string,
     search?: string,
     unitType?: string,
+    floor?: string,
   ) {
+    console.log('Units.findAll called with floor:', floor);
     const filter: any = { tenantId };
     if (propertyId) filter.propertyId = propertyId;
     if (status) filter.status = status;
     if (unitType) filter.unitType = unitType;
+    
+    if (floor !== undefined && floor !== null && floor !== '') {
+      console.log('Applying floor filter:', floor);
+      // Floor can be stored as string or number in DB
+      // Convert floor input to handle both cases
+      if (floor === 'G' || floor === '0') {
+        // For ground floor, match both 'G', 0, and '0'
+        filter.floor = { $in: ['G', 0, '0', 'g'] };
+      } else {
+        // For numbered floors, match both string and numeric versions
+        const floorNum = parseInt(floor, 10);
+        if (!isNaN(floorNum)) {
+          filter.floor = { $in: [floor, floorNum, String(floorNum)] };
+        } else {
+          filter.floor = floor;
+        }
+      }
+      console.log('Floor filter query:', filter.floor);
+    }
+    
     if (search) {
       filter.$or = [
         { unitNumber: { $regex: search, $options: 'i' } },
@@ -36,6 +58,7 @@ export class UnitsService {
       ];
     }
 
+    console.log('Final filter:', JSON.stringify(filter));
     return this.unitRepository.findPaginated({ page, limit, filter });
   }
 
