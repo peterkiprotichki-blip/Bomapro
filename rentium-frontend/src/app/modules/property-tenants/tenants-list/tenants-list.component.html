@@ -27,9 +27,10 @@
         <thead>
           <tr class="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50">
             <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden sm:table-cell">Email</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden md:table-cell">Phone</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden lg:table-cell">ID Number</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden sm:table-cell">Property</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden md:table-cell">Unit</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden md:table-cell">Email</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden lg:table-cell">Phone</th>
             <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Status</th>
             <th class="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Actions</th>
           </tr>
@@ -37,9 +38,10 @@
         <tbody>
           <tr *ngFor="let t of tenants" class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
             <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-100 cursor-pointer" (click)="viewTenant(t._id)">{{ t.name }}</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden sm:table-cell">{{ t.email || '-' }}</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden md:table-cell">{{ t.phone }}</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden lg:table-cell">{{ t.idNumber }}</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden sm:table-cell">{{ t.propertyName || '-' }}</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden md:table-cell">{{ t.unitNumber || '-' }}</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden md:table-cell">{{ t.email || '-' }}</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden lg:table-cell">{{ t.phone }}</td>
             <td class="px-4 py-3">
               <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="t.isActive ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'">
                 {{ t.isActive ? 'Active' : 'Inactive' }}

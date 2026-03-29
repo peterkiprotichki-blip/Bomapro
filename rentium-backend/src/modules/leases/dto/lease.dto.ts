@@ -19,7 +19,7 @@ export class CreateLeaseDto {
   @IsNotEmpty()
   startDate: string;
 
-  @IsDateString()
+  @IsString()
   @IsOptional()
   endDate?: string;
 

@@ -48,6 +48,18 @@ export class LeasesService {
       status: 'draft',
     } as any);
 
+    // Update PropertyTenant with currentLeaseId and currentPropertyId
+    if (dto.propertyTenantId && createdLease._id) {
+      try {
+        await this.propertyTenantsService.update(dto.propertyTenantId, tenantId, {
+          currentLeaseId: createdLease._id.toString(),
+          currentPropertyId: dto.propertyId || '',
+        });
+      } catch (error) {
+        console.error('Failed to update PropertyTenant lease info:', error.message);
+      }
+    }
+
     // Update unit status to "occupied" if lease is created
     if (dto.unitId && createdLease._id) {
       try {
@@ -137,6 +149,18 @@ export class LeasesService {
       terminatedAt: new Date(),
       terminationReason: reason,
     } as any);
+
+    // Clear PropertyTenant lease info
+    if (lease.propertyTenantId) {
+      try {
+        await this.propertyTenantsService.update(lease.propertyTenantId, tenantId, {
+          currentLeaseId: '',
+          currentPropertyId: '',
+        });
+      } catch (error) {
+        console.error('Failed to clear PropertyTenant lease info:', error.message);
+      }
+    }
 
     // If lease is for a unit, mark unit as vacant
     if (lease.unitId) {

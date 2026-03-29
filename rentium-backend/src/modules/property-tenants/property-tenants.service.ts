@@ -1,7 +1,12 @@
 import { Injectable, NotFoundException, ConflictException, Inject, forwardRef, Logger } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { PropertyTenantRepository } from './repositories/property-tenant.repository';
 import { CreatePropertyTenantDto, UpdatePropertyTenantDto } from './dto/property-tenant.dto';
 import { TenantPortalService } from '../tenant-portal/tenant-portal.service';
+import { Lease } from '../leases/schemas/lease.schema';
+import { Unit } from '../units/schemas/unit.schema';
+import { Property } from '../properties/schemas/property.schema';
 
 @Injectable()
 export class PropertyTenantsService {
@@ -9,6 +14,9 @@ export class PropertyTenantsService {
 
   constructor(
     private readonly propertyTenantRepository: PropertyTenantRepository,
+    @InjectModel(Lease.name) private leaseModel: Model<Lease>,
+    @InjectModel(Unit.name) private unitModel: Model<Unit>,
+    @InjectModel(Property.name) private propertyModel: Model<Property>,
     @Inject(forwardRef(() => TenantPortalService)) private readonly tenantPortalService: TenantPortalService,
   ) {}
 
@@ -42,7 +50,48 @@ export class PropertyTenantsService {
         { idNumber: { $regex: search, $options: 'i' } },
       ];
     }
-    return this.propertyTenantRepository.findPaginated({ page, limit, filter });
+    const result = await this.propertyTenantRepository.findPaginated({ page, limit, filter });
+    
+    // Enrich with unit and property information
+    const enrichedData = await Promise.all(
+      result.data.map(async (tenant: any) => {
+        const enriched = tenant.toObject ? tenant.toObject() : tenant;
+        
+        // Fetch unit and property information if tenant has a current lease
+        if (enriched.currentLeaseId && String(enriched.currentLeaseId).trim()) {
+          try {
+            const lease = await this.leaseModel.findById(enriched.currentLeaseId).exec();
+            if (lease && lease.unitId) {
+              const unit = await this.unitModel.findById(lease.unitId).exec();
+              if (unit) {
+                enriched.unitNumber = unit.unitNumber;
+              }
+            }
+          } catch (err) {
+            // Silently fail enrichment
+          }
+        }
+        
+        // Fetch property information
+        if (enriched.currentPropertyId && String(enriched.currentPropertyId).trim()) {
+          try {
+            const property = await this.propertyModel.findById(enriched.currentPropertyId).exec();
+            if (property) {
+              enriched.propertyName = property.name;
+            }
+          } catch (err) {
+            // Silently fail enrichment
+          }
+        }
+        
+        return enriched;
+      }),
+    );
+    
+    return {
+      ...result,
+      data: enrichedData,
+    };
   }
 
   async findById(id: string, tenantId: string) {

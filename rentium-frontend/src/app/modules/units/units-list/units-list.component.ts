@@ -36,6 +36,12 @@ export class UnitsListComponent implements OnInit {
   isTenant = false;
   propertyOptionsLoaded = false;
 
+  // Stats
+  totalUnits = 0;
+  occupiedUnits = 0;
+  vacantUnits = 0;
+  maintenanceUnits = 0;
+
   statusOptions = ['vacant', 'occupied', 'maintenance', 'reserved'];
   unitTypeOptions = ['bedsitter', 'single_room', 'one_bedroom', 'two_bedroom', 'three_bedroom'];
 
@@ -105,6 +111,7 @@ export class UnitsListComponent implements OnInit {
           this.total = this.units.length;
           this.totalPages = Math.ceil(this.total / this.limit);
           this.updateFloorOptions();
+          this.calculateStats();
           this.loading = false;
         },
         error: () => {
@@ -173,6 +180,14 @@ export class UnitsListComponent implements OnInit {
       const bNum = typeof b === 'string' ? parseInt(b, 10) : b;
       return aNum - bNum;
     });
+  }
+
+  calculateStats(): void {
+    // Calculate stats from loaded units
+    this.totalUnits = this.units.length;
+    this.occupiedUnits = this.units.filter(u => u.status === 'occupied').length;
+    this.vacantUnits = this.units.filter(u => u.status === 'vacant').length;
+    this.maintenanceUnits = this.units.filter(u => u.status === 'maintenance').length;
   }
 
   onSearch(): void {

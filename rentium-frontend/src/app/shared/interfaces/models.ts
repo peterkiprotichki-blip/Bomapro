@@ -44,6 +44,9 @@ export interface PropertyTenant {
   metadata: Record<string, any>;
   createdAt: string;
   updatedAt: string;
+  // Optional enriched fields from API
+  propertyName?: string;
+  unitNumber?: string;
 }
 
 // ─── Leases ─── //
