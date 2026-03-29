@@ -96,6 +96,13 @@ export class Lease extends BaseDocument {
 
   @Prop({ required: false, default: '' })
   signedByPropertyTenantId: string;
+
+  // ─── Schedule Generation ───────────────────────────────────────────────────
+  @Prop({ default: false })
+  scheduleGenerated: boolean; // Flag to track if 12-month schedule has been generated
+
+  @Prop({ required: false })
+  scheduleGeneratedAt?: Date;
 }
 
 export const LeaseSchema = SchemaFactory.createForClass(Lease);

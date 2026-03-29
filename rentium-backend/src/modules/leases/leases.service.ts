@@ -3,6 +3,7 @@ import { LeaseRepository } from './repositories/lease.repository';
 import { CreateLeaseDto, UpdateLeaseDto } from './dto/lease.dto';
 import { UnitsService } from '../units/units.service';
 import { PropertyTenantsService } from '../property-tenants/property-tenants.service';
+import { RentSchedulesService } from '../rent-schedules/rent-schedules.service';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -11,6 +12,7 @@ export class LeasesService {
     private readonly leaseRepository: LeaseRepository,
     private readonly unitsService: UnitsService,
     private readonly propertyTenantsService: PropertyTenantsService,
+    private readonly rentSchedulesService: RentSchedulesService,
   ) {}
 
   async create(dto: CreateLeaseDto, tenantId: string) {
@@ -45,7 +47,8 @@ export class LeasesService {
       ...dto,
       tenantId,
       leaseNumber,
-      status: 'draft',
+      status: 'active', // Auto-activate lease on creation
+      scheduleGenerated: false,
     } as any);
 
     // Update PropertyTenant with currentLeaseId and currentPropertyId
@@ -75,6 +78,32 @@ export class LeasesService {
       }
     }
 
+    // Generate 12-month rent schedule automaticall
+    if (createdLease._id && dto.rentAmount > 0) {
+      try {
+        const startDate = new Date(dto.startDate);
+        await this.rentSchedulesService.generateSchedulesForLease(
+          createdLease._id.toString(),
+          tenantId,
+          dto.propertyId,
+          dto.unitId,
+          startDate,
+          dto.rentAmount,
+          dto.gracePeriodDays || 5,
+          12,
+        );
+
+        // Mark lease as having schedules generated
+        await this.leaseRepository.update(createdLease._id.toString(), {
+          scheduleGenerated: true,
+          scheduleGeneratedAt: new Date(),
+        } as any);
+      } catch (error) {
+        console.error('Failed to generate rent schedule:', error.message);
+        // Don't fail lease creation if schedule generation fails
+      }
+    }
+
     return createdLease;
   }
 
@@ -97,6 +126,18 @@ export class LeasesService {
       throw new NotFoundException('Lease not found');
     }
     return lease;
+  }
+
+  async findWithBalance(id: string, tenantId: string) {
+    const lease = await this.findById(id, tenantId);
+    const balance = await this.rentSchedulesService.getLeaseBalance(tenantId, id);
+    const schedules = await this.rentSchedulesService.findByLease(tenantId, id);
+
+    return {
+      lease,
+      balance,
+      schedules,
+    };
   }
 
   async findByProperty(tenantId: string, propertyId: string) {

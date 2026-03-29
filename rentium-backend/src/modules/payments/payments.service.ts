@@ -1,20 +1,43 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaymentRepository } from './repositories/payment.repository';
 import { CreatePaymentDto, UpdatePaymentDto } from './dto/payment.dto';
+import { RentSchedulesService } from '../rent-schedules/rent-schedules.service';
 
 @Injectable()
 export class PaymentsService {
-  constructor(private readonly paymentRepository: PaymentRepository) {}
+  constructor(
+    private readonly paymentRepository: PaymentRepository,
+    private readonly rentSchedulesService: RentSchedulesService,
+  ) {}
 
   async create(dto: CreatePaymentDto, tenantId: string, recordedBy: string) {
     const receiptNumber = `RCP-${Date.now().toString(36).toUpperCase()}`;
-    return this.paymentRepository.create({
+    const payment = await this.paymentRepository.create({
       ...dto,
       tenantId,
       recordedBy,
       receiptNumber,
-      status: 'pending',
+      status: 'completed', // Auto-complete payments on creation
     } as any);
+
+    // Apply payment to rent schedule if it's a rent payment
+    if (payment.leaseId && dto.paymentType === 'rent') {
+      try {
+        await this.rentSchedulesService.recordPayment(
+          tenantId,
+          payment.leaseId,
+          payment.amount,
+          payment._id.toString(),
+          payment.paymentDate,
+          payment.paymentMethod,
+        );
+      } catch (error) {
+        console.error('Failed to record payment in rent schedule:', error.message);
+        // Don't fail payment creation if schedule update fails
+      }
+    }
+
+    return payment;
   }
 
   async findAll(tenantId: string, page = 1, limit = 20, search?: string, status?: string, paymentMethod?: string) {

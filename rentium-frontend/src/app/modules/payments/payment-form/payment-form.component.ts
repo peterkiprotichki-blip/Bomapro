@@ -104,9 +104,12 @@ export class PaymentFormComponent implements OnInit, OnChanges {
     if (!this.form.amount || this.form.amount <= 0) return false;
     if (!this.form.paymentDate) return false;
     if (!this.form.paymentMethod) return false;
+    
+    // Conditional validations for specific payment methods
     if (this.form.paymentMethod === 'mpesa' && !this.form.mpesaPhoneNumber) return false;
     if (this.form.paymentMethod === 'bank_transfer' && !this.form.bankReference) return false;
     if (this.form.paymentMethod === 'cheque' && !this.form.chequeNumber) return false;
+    
     return true;
   }
 

@@ -49,6 +49,10 @@ export class CreatePaymentDto {
 
   @IsString()
   @IsOptional()
+  referenceNumber?: string; // Generic reference number for all payment methods
+
+  @IsString()
+  @IsOptional()
   chequeNumber?: string;
 
   @IsString()

@@ -162,6 +162,19 @@
         />
       </div>
 
+      <!-- Reference Number (Optional) -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Reference Number</label>
+        <input
+          type="text"
+          [(ngModel)]="form.receiptNumber"
+          name="receiptNumber"
+          placeholder="e.g., REF-001, Invoice #123"
+          class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+        />
+        <small class="text-gray-500 dark:text-gray-400 text-xs mt-1">Generic reference for any payment method</small>
+      </div>
+
       <!-- Notes -->
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes</label>

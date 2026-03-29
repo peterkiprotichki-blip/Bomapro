@@ -75,6 +75,9 @@ export class Payment extends BaseDocument {
   receiptNumber: string;
 
   @Prop({ required: false, default: '' })
+  referenceNumber: string; // Generic reference number for all payment methods
+
+  @Prop({ required: false, default: '' })
   paymentPeriod: string; // e.g. "January 2025"
 
   @Prop({ required: false, default: '' })

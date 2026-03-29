@@ -65,6 +65,12 @@ export class LeasesController {
     return this.leasesService.findById(id, tenantId);
   }
 
+  @Get(':id/details-with-balance')
+  async findWithBalance(@Param('id') id: string, @Req() req) {
+    const tenantId = req.user?.tenantId || '';
+    return this.leasesService.findWithBalance(id, tenantId);
+  }
+
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateLeaseDto, @Req() req) {
     const tenantId = req.user?.tenantId || '';

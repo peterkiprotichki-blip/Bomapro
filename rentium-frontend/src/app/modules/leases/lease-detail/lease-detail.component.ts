@@ -12,6 +12,12 @@ import { Lease, Payment } from '../../../shared/interfaces/models';
 import { PaymentFormComponent } from '../../payments/payment-form/payment-form.component';
 import { PaymentHistoryComponent } from '../../payments/payment-history/payment-history.component';
 
+interface DelinquentPayment {
+  dueDate: Date;
+  overdue: boolean;
+  daysOverdue: number;
+}
+
 @Component({
   selector: 'app-lease-detail',
   templateUrl: './lease-detail.component.html',
@@ -29,6 +35,17 @@ export class LeaseDetailComponent implements OnInit {
   paymentSchedule: Date[] = [];
   leaseTimeline: any[] = [];
   showPaymentForm = false;
+  showEditLease = false;
+  editForm: Partial<Lease> = {};
+  showDocuments = false;
+  delinquentPayments: DelinquentPayment[] = [];
+  paymentMetrics: any = {
+    totalCollected: 0,
+    totalExpected: 0,
+    collectionRate: 0,
+    overdueAmount: 0,
+    lastPaymentDate: null
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -50,11 +67,16 @@ export class LeaseDetailComponent implements OnInit {
     this.leasesService.getById(id).subscribe({
       next: (l) => {
         this.lease = l;
+        this.editForm = { ...l };
         this.calculateNextPaymentDue();
         this.generatePaymentSchedule();
         this.generateLeaseTimeline();
         this.loading = false;
-        this.paymentsService.getByLease(id).subscribe((p) => (this.payments = p || []));
+        this.paymentsService.getByLease(id).subscribe((p) => {
+          this.payments = p || [];
+          this.calculatePaymentMetrics();
+          this.identifyDelinquentPayments();
+        });
         
         // Load property name
         if (this.lease.propertyId) {
@@ -111,33 +133,47 @@ export class LeaseDetailComponent implements OnInit {
   generateLeaseTimeline(): void {
     if (!this.lease) return;
 
-    this.leaseTimeline = [
+    const timelineEvents = [
       {
         date: this.lease.createdAt,
         event: 'Lease Created',
         icon: 'fa-file-contract',
         status: 'completed',
+        type: 'lease'
       },
-
       {
         date: this.lease.startDate,
         event: 'Lease Starts',
         icon: 'fa-play-circle',
         status: new Date() >= new Date(this.lease.startDate || '') ? 'completed' : 'pending',
+        type: 'lease'
       },
       {
         date: this.lease.endDate,
         event: 'Lease Ends',
         icon: 'fa-stop-circle',
         status: new Date() >= new Date(this.lease.endDate || '') ? 'completed' : 'pending',
+        type: 'lease'
       },
       ...(this.lease.terminatedAt ? [{
         date: this.lease.terminatedAt,
         event: `Terminated - ${this.lease.terminationReason || 'No reason specified'}`,
         icon: 'fa-times-circle',
         status: 'completed',
+        type: 'lease'
       }] : []),
+      // Add payment milestones
+      ...(this.payments && this.payments.length > 0 ? 
+        this.payments.slice(0, 5).map(p => ({
+          date: p.paymentDate,
+          event: `Payment Received - ${this.lease?.currency} ${p.amount}`,
+          icon: 'fa-check-circle',
+          status: p.status === 'completed' ? 'completed' : 'pending',
+          type: 'payment'
+        })) : [])
     ].sort((a, b) => new Date(a.date || '').getTime() - new Date(b.date || '').getTime());
+
+    this.leaseTimeline = timelineEvents;
   }
 
   renewLease(): void {
@@ -249,5 +285,124 @@ export class LeaseDetailComponent implements OnInit {
   deleteLease(): void {
     if (!this.lease || !confirm('Delete this lease?')) return;
     this.leasesService.delete(this.lease._id).subscribe(() => this.goBack());
+  }
+
+  openEditLease(): void {
+    this.editForm = { ...this.lease };
+    this.showEditLease = true;
+  }
+
+  closeEditLease(): void {
+    this.showEditLease = false;
+  }
+
+  saveLease(): void {
+    if (!this.lease) return;
+    this.leasesService.update(this.lease._id, this.editForm).subscribe({
+      next: (updated) => {
+        this.lease = updated;
+        this.editForm = { ...updated };
+        this.showEditLease = false;
+        alert('Lease updated successfully!');
+      },
+      error: () => alert('Failed to update lease'),
+    });
+  }
+
+  calculatePaymentMetrics(): void {
+    if (!this.lease || !this.payments) return;
+
+    const completedPayments = this.payments.filter(p => p.status === 'completed');
+    this.paymentMetrics.totalCollected = completedPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+
+    // Calculate expected payments based on lease duration and frequency
+    const today = new Date();
+    const start = new Date(this.lease.startDate || '');
+    const end = new Date(Math.min(today.getTime(), new Date(this.lease.endDate || '').getTime()));
+
+    let monthsDuration = 0;
+    let d = new Date(start);
+    while (d < end) {
+      monthsDuration++;
+      d.setMonth(d.getMonth() + 1);
+    }
+
+    const frequency = this.lease.paymentFrequency === 'monthly' ? 1 :
+                     this.lease.paymentFrequency === 'quarterly' ? 3 :
+                     this.lease.paymentFrequency === 'semi_annually' ? 6 : 12;
+
+    this.paymentMetrics.totalExpected = Math.floor(monthsDuration / frequency) * this.lease.rentAmount;
+    this.paymentMetrics.collectionRate = this.paymentMetrics.totalExpected > 0 
+      ? ((this.paymentMetrics.totalCollected / this.paymentMetrics.totalExpected) * 100).toFixed(1)
+      : 0;
+
+    if (completedPayments.length > 0) {
+      this.paymentMetrics.lastPaymentDate = completedPayments[0].paymentDate;
+    }
+  }
+
+  identifyDelinquentPayments(): void {
+    const today = new Date();
+    const gracePeriodMs = (this.lease?.gracePeriodDays || 5) * 24 * 60 * 60 * 1000;
+
+    this.delinquentPayments = this.paymentSchedule
+      .map(dueDate => ({
+        dueDate,
+        overdue: (today.getTime() - new Date(dueDate).getTime()) > gracePeriodMs,
+        daysOverdue: Math.floor((today.getTime() - (new Date(dueDate).getTime() + gracePeriodMs)) / (24 * 60 * 60 * 1000))
+      }))
+      .filter(item => item.overdue && item.daysOverdue > 0);
+
+    // Calculate total overdue amount
+    this.paymentMetrics.overdueAmount = this.delinquentPayments.length * (this.lease?.rentAmount || 0);
+  }
+
+  downloadLeaseExport(): void {
+    if (!this.lease) return;
+
+    const summary = `
+LEASE SUMMARY
+=============
+Lease Number: ${this.lease.leaseNumber}
+Status: ${this.lease.status}
+
+PARTIES
+Property: ${this.lease.propertyName}
+Tenant: ${this.lease.propertyTenantName}
+Unit: ${this.lease.unitNumber}
+
+LEASE TERMS
+Start Date: ${new Date(this.lease.startDate || '').toLocaleDateString()}
+End Date: ${new Date(this.lease.endDate || '').toLocaleDateString()}
+Duration: ${this.getDaysUntilExpiry() > 0 ? 'Active' : 'Expired'}
+
+FINANCIAL DETAILS
+Monthly Rent: ${this.lease.currency} ${(this.lease.rentAmount || 0).toLocaleString()}
+Deposit Amount: ${this.lease.currency} ${(this.lease.depositAmount || 0).toLocaleString()}
+Deposit Paid: ${this.lease.depositPaid ? 'Yes' : 'No'}
+Payment Frequency: ${this.lease.paymentFrequency}
+Payment Due Day: ${this.lease.paymentDueDay}
+Late Fee: ${this.lease.currency} ${(this.lease.lateFeeAmount || 0).toLocaleString()}
+Grace Period: ${this.lease.gracePeriodDays} days
+
+PAYMENT METRICS
+Total Collected: ${this.lease.currency} ${this.paymentMetrics.totalCollected.toLocaleString()}
+Total Expected: ${this.lease.currency} ${this.paymentMetrics.totalExpected.toLocaleString()}
+Collection Rate: ${this.paymentMetrics.collectionRate}%
+Overdue Amount: ${this.lease.currency} ${this.paymentMetrics.overdueAmount.toLocaleString()}
+Total Payments: ${this.payments.length}
+
+${this.lease.terms ? `\nTERMS\n${this.lease.terms}` : ''}
+
+Generated: ${new Date().toLocaleString()}
+    `;
+
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(summary));
+    element.setAttribute('download', `Lease_${this.lease.leaseNumber}_Summary.txt`);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   }
 }

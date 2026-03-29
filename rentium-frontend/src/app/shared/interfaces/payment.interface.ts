@@ -41,6 +41,7 @@ export interface CreatePaymentDto {
   mpesaPhoneNumber?: string;
   bankReference?: string;
   chequeNumber?: string;
+  receiptNumber?: string;
   paymentPeriod?: string;
   notes?: string;
   propertyName?: string;
