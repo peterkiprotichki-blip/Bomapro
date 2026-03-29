@@ -23,10 +23,12 @@ export class UnitsService {
     propertyId?: string,
     status?: string,
     search?: string,
+    unitType?: string,
   ) {
     const filter: any = { tenantId };
     if (propertyId) filter.propertyId = propertyId;
     if (status) filter.status = status;
+    if (unitType) filter.unitType = unitType;
     if (search) {
       filter.$or = [
         { unitNumber: { $regex: search, $options: 'i' } },

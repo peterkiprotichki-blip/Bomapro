@@ -47,11 +47,13 @@ export class UnitsService {
     propertyId?: string,
     status?: string,
     search?: string,
+    unitType?: string,
   ): Observable<PaginatedResponse<Unit>> {
     let params = new HttpParams().set('page', page).set('limit', limit);
     if (propertyId) params = params.set('propertyId', propertyId);
     if (status) params = params.set('status', status);
     if (search) params = params.set('search', search);
+    if (unitType) params = params.set('unitType', unitType);
     return this.http.get<PaginatedResponse<Unit>>(this.apiUrl, { params });
   }
 

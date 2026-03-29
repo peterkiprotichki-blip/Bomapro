@@ -6,6 +6,7 @@ import { UnitsService, Unit, PaginatedResponse } from '../../../shared/services/
 import { ThemeService } from '../../../shared/services/theme/theme.service';
 import { AuthService } from '../../../shared/services/auth/auth.service';
 import { PropertiesService } from '../../../shared/services/properties/properties.service';
+import { Property } from '../../../shared/interfaces/models';
 import { UnitViewComponent } from '../unit-view/unit-view.component';
 import { UnitsFormComponent } from '../units-form/units-form.component';
 
@@ -20,14 +21,18 @@ export class UnitsListComponent implements OnInit {
   units: Unit[] = [];
   loading = true;
   search = '';
-  propertyId = '';
+  propertyIdFilter = ''; // User-selected property filter
+  urlPropertyId = ''; // URL-driven property scope
   statusFilter = '';
+  unitTypeFilter = '';
   page = 1;
   limit = 20;
   total = 0;
   totalPages = 0;
   propertyMap: { [key: string]: string } = {}; // Cache property names
+  propertyOptions: Pick<Property, '_id' | 'name'>[] = [];
   isTenant = false;
+  propertyOptionsLoaded = false;
 
   statusOptions = ['vacant', 'occupied', 'maintenance', 'reserved'];
   unitTypeOptions = ['bedsitter', 'single_room', 'one_bedroom', 'two_bedroom', 'three_bedroom'];
@@ -49,22 +54,29 @@ export class UnitsListComponent implements OnInit {
   ngOnInit(): void {
     const user = this.authService.getUser();
     this.isTenant = user?.role === 'tenant';
+    
+    // Load properties first, then subscribe to route params
+    this.loadPropertyOptions();
 
     this.route.queryParams.subscribe((params) => {
-      this.propertyId = params['propertyId'] || '';
+      this.urlPropertyId = params['propertyId'] || '';
+      this.page = 1;
       this.loadUnits();
     });
   }
 
   loadUnits(): void {
     this.loading = true;
+    // Use URL property scope first, then fall back to user filter
+    const propertyIdToSend = this.urlPropertyId || this.propertyIdFilter || undefined;
     this.unitsService
       .getAll(
         this.page,
         this.limit,
-        this.propertyId || undefined,
+        propertyIdToSend,
         this.statusFilter || undefined,
         this.search || undefined,
+        this.unitTypeFilter || undefined,
       )
       .subscribe({
         next: (res) => {
@@ -80,7 +92,6 @@ export class UnitsListComponent implements OnInit {
           }
           this.total = this.units.length;
           this.totalPages = Math.ceil(this.total / this.limit);
-          this.loadPropertiesForUnits();
           this.loading = false;
         },
         error: () => {
@@ -89,25 +100,22 @@ export class UnitsListComponent implements OnInit {
       });
   }
 
-  loadPropertiesForUnits(): void {
-    // Get unique property IDs from units
-    const uniquePropertyIds = Array.from(new Set(this.units.map(u => u.propertyId)));
-    
-    // Load properties that aren't already cached
-    const idsToLoad = uniquePropertyIds.filter(id => !this.propertyMap[id]);
-    
-    if (idsToLoad.length === 0) return;
-
-    // Load all properties and cache them
-    this.propertiesService.getAll(1, 100).subscribe({
+  loadPropertyOptions(): void {
+    this.propertiesService.getAll(1, 1000).subscribe({
       next: (res) => {
-        res.data.forEach(prop => {
+        this.propertyOptions = res.data.map((prop) => ({
+          _id: prop._id,
+          name: prop.name,
+        }));
+        this.propertyOptions.forEach((prop) => {
           this.propertyMap[prop._id || ''] = prop.name;
         });
+        this.propertyOptionsLoaded = true;
       },
       error: () => {
         // Silent fail - just continue without property names
-      }
+        this.propertyOptionsLoaded = true;
+      },
     });
   }
 
