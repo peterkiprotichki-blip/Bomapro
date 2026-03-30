@@ -18,6 +18,15 @@ interface DelinquentPayment {
   daysOverdue: number;
 }
 
+interface MonthlyPaymentBreakdown {
+  month: Date;
+  expectedAmount: number;
+  paidAmount: number;
+  previousBalance: number;
+  currentBalance: number;
+  paymentStatus: 'paid' | 'partially-paid' | 'unpaid';
+}
+
 @Component({
   selector: 'app-lease-detail',
   templateUrl: './lease-detail.component.html',
@@ -39,6 +48,9 @@ export class LeaseDetailComponent implements OnInit {
   editForm: Partial<Lease> = {};
   showDocuments = false;
   delinquentPayments: DelinquentPayment[] = [];
+  monthlyBreakdown: MonthlyPaymentBreakdown[] = [];
+  showEditPayment = false;
+  editingPayment: any = null;
   paymentMetrics: any = {
     totalCollected: 0,
     totalExpected: 0,
@@ -75,7 +87,9 @@ export class LeaseDetailComponent implements OnInit {
         this.paymentsService.getByLease(id).subscribe((p) => {
           this.payments = p || [];
           this.calculatePaymentMetrics();
+          this.calculateDepositStatus();
           this.identifyDelinquentPayments();
+          this.generateMonthlyBreakdown();
         });
         
         // Load property name
@@ -312,10 +326,11 @@ export class LeaseDetailComponent implements OnInit {
   calculatePaymentMetrics(): void {
     if (!this.lease || !this.payments) return;
 
-    const completedPayments = this.payments.filter(p => p.status === 'completed');
-    this.paymentMetrics.totalCollected = completedPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+    // Only count rent payments for collection rate (exclude deposits, damages, utilities, etc)
+    const completedRentPayments = this.payments.filter(p => p.status === 'completed' && p.paymentType === 'rent');
+    const totalRentCollected = completedRentPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
-    // Calculate expected payments based on lease duration and frequency
+    // Calculate expected rent payments based on lease duration and frequency
     const today = new Date();
     const start = new Date(this.lease.startDate || '');
     const end = new Date(Math.min(today.getTime(), new Date(this.lease.endDate || '').getTime()));
@@ -332,12 +347,29 @@ export class LeaseDetailComponent implements OnInit {
                      this.lease.paymentFrequency === 'semi_annually' ? 6 : 12;
 
     this.paymentMetrics.totalExpected = Math.floor(monthsDuration / frequency) * this.lease.rentAmount;
-    this.paymentMetrics.collectionRate = this.paymentMetrics.totalExpected > 0 
-      ? ((this.paymentMetrics.totalCollected / this.paymentMetrics.totalExpected) * 100).toFixed(1)
+    
+    // Cap collection rate at 100% - only rent payments count
+    let collectionRate = this.paymentMetrics.totalExpected > 0 
+      ? (totalRentCollected / this.paymentMetrics.totalExpected) * 100
       : 0;
+    this.paymentMetrics.collectionRate = Math.min(collectionRate, 100).toFixed(1);
+    this.paymentMetrics.totalCollected = totalRentCollected;
 
-    if (completedPayments.length > 0) {
-      this.paymentMetrics.lastPaymentDate = completedPayments[0].paymentDate;
+    if (completedRentPayments.length > 0) {
+      this.paymentMetrics.lastPaymentDate = completedRentPayments[0].paymentDate;
+    }
+  }
+
+  calculateDepositStatus(): void {
+    if (!this.lease || !this.payments) return;
+
+    // Check for completed deposit payments
+    const depositPayments = this.payments.filter(p => p.status === 'completed' && p.paymentType === 'deposit');
+    const totalDepositPaid = depositPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+
+    // Mark deposit as paid if total deposit paid >= required amount
+    if (this.lease) {
+      this.lease.depositPaid = totalDepositPaid >= (this.lease.depositAmount || 0);
     }
   }
 
@@ -355,6 +387,114 @@ export class LeaseDetailComponent implements OnInit {
 
     // Calculate total overdue amount
     this.paymentMetrics.overdueAmount = this.delinquentPayments.length * (this.lease?.rentAmount || 0);
+  }
+
+  generateMonthlyBreakdown(): void {
+    if (!this.lease || !this.payments) return;
+
+    const breakdown: MonthlyPaymentBreakdown[] = [];
+    let previousBalance = 0;
+    const start = new Date(this.lease.startDate || '');
+    const end = new Date(this.lease.endDate || '');
+    const frequency = this.lease.paymentFrequency === 'monthly' ? 1 :
+                     this.lease.paymentFrequency === 'quarterly' ? 3 :
+                     this.lease.paymentFrequency === 'semi_annually' ? 6 : 12;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let currentMonth = new Date(start);
+    while (currentMonth <= end) {
+      const monthStart = new Date(currentMonth);
+      monthStart.setHours(0, 0, 0, 0);
+      
+      const monthEnd = new Date(currentMonth);
+      monthEnd.setMonth(monthEnd.getMonth() + frequency);
+      monthEnd.setHours(23, 59, 59, 999);
+
+      // Get rent payments for this month (only rent type)
+      const monthPayments = this.payments.filter(p => {
+        const paymentDate = new Date(p.paymentDate);
+        return p.status === 'completed' && 
+               p.paymentType === 'rent' && 
+               paymentDate >= monthStart && 
+               paymentDate < monthEnd;
+      });
+
+      const paidAmount = monthPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+      const expectedAmount = this.lease.rentAmount;
+      
+      // Show all past/current months and future months with carryforward balance or payments
+      const isMonthInPastOrCurrent = monthStart <= today;
+      const hasCarryforwardBalance = previousBalance !== 0;
+      const hasPaymentActivity = paidAmount > 0;
+      
+      if (isMonthInPastOrCurrent || hasCarryforwardBalance || hasPaymentActivity) {
+        const currentBalance = previousBalance + expectedAmount - paidAmount;
+        
+        breakdown.push({
+          month: monthStart,
+          expectedAmount,
+          paidAmount,
+          previousBalance,
+          currentBalance,
+          paymentStatus: currentBalance <= 0 ? 'paid' : 
+                        (paidAmount > 0 || previousBalance < 0) ? 'partially-paid' : 'unpaid'
+        });
+
+        previousBalance = currentBalance; // Carry forward for next iteration
+      }
+
+      currentMonth.setMonth(currentMonth.getMonth() + frequency);
+    }
+
+    this.monthlyBreakdown = breakdown;
+  }
+
+  openEditPayment(payment: any): void {
+    this.editingPayment = { ...payment };
+    this.showEditPayment = true;
+  }
+
+  closeEditPayment(): void {
+    this.showEditPayment = false;
+    this.editingPayment = null;
+  }
+
+  savePaymentEdit(): void {
+    if (!this.editingPayment) return;
+    this.paymentsService.update(this.editingPayment._id, this.editingPayment).subscribe({
+      next: (updated) => {
+        const index = this.payments.findIndex(p => p._id === updated._id);
+        if (index !== -1) {
+          this.payments[index] = updated;
+        }
+        this.calculatePaymentMetrics();
+        this.calculateDepositStatus();
+        this.identifyDelinquentPayments();
+        this.generateMonthlyBreakdown();
+        this.generateLeaseTimeline();
+        this.showEditPayment = false;
+        this.editingPayment = null;
+        alert('Payment updated successfully!');
+      },
+      error: () => alert('Failed to update payment'),
+    });
+  }
+
+  deletePayment(paymentId: string): void {
+    if (!confirm('Delete this payment? This action cannot be undone.')) return;
+    this.paymentsService.delete(paymentId).subscribe({
+      next: () => {
+        this.payments = this.payments.filter(p => p._id !== paymentId);
+        this.calculatePaymentMetrics();
+        this.calculateDepositStatus();
+        this.identifyDelinquentPayments();
+        this.generateMonthlyBreakdown();
+        this.generateLeaseTimeline();
+        alert('Payment deleted successfully!');
+      },
+      error: () => alert('Failed to delete payment'),
+    });
   }
 
   downloadLeaseExport(): void {

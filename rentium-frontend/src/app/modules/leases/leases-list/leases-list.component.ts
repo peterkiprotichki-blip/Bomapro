@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { LeasesService } from '../../../shared/services/leases/leases.service';
 import { UnitsService } from '../../../shared/services/units/units.service';
 import { PropertyTenantsService } from '../../../shared/services/property-tenants/property-tenants.service';
@@ -61,7 +62,6 @@ export class LeasesListComponent implements OnInit {
         if (this.isTenant) {
           const user = this.authService.getUser();
           this.leases = res.data.filter((lease: any) => {
-            // Show leases where the user is one of the property tenants
             return lease.propertyTenantId === user?._id || lease.tenantId === user?._id;
           });
         } else {
@@ -70,32 +70,64 @@ export class LeasesListComponent implements OnInit {
         this.total = this.leases.length;
         this.totalPages = Math.ceil(this.total / this.limit);
         
-        // Fetch unit numbers and tenant names for each lease
-        this.leases.forEach((lease) => {
-          if (lease.unitId && !lease.unitNumber) {
-            this.unitsService.getById(lease.unitId).subscribe({
-              next: (unit) => {
-                lease.unitNumber = unit.unitNumber;
-              },
-              error: (err) => console.error('Error loading unit:', err),
-            });
-          }
-          if (lease.propertyTenantId && !lease.propertyTenantName) {
-            this.propertyTenantsService.getById(lease.propertyTenantId).subscribe({
-              next: (tenant) => {
-                lease.propertyTenantName = tenant.name;
-              },
-              error: (err) => console.error('Error loading tenant:', err),
-            });
-          }
-        });
- 
-        this.loading = false; 
+        // Batch load unit and tenant data for all leases at once
+        this.enrichLeasesWithUnitAndTenantData();
+        this.loading = false;
       },
       error: () => { 
         this.loading = false; 
       },
     });
+  }
+
+  private enrichLeasesWithUnitAndTenantData(): void {
+    // Collect unique unit and property tenant IDs
+    const unitIds = new Set<string>();
+    const tenantIds = new Set<string>();
+
+    this.leases.forEach((lease) => {
+      if (lease.unitId && !lease.unitNumber) unitIds.add(lease.unitId);
+      if (lease.propertyTenantId && !lease.propertyTenantName) tenantIds.add(lease.propertyTenantId);
+    });
+
+    // If there are IDs to fetch, batch load them
+    if (unitIds.size > 0 || tenantIds.size > 0) {
+      const requests: any = {};
+
+      // Batch load units
+      if (unitIds.size > 0) {
+        Array.from(unitIds).forEach(id => {
+          requests[`unit_${id}`] = this.unitsService.getById(id);
+        });
+      }
+
+      // Batch load tenants
+      if (tenantIds.size > 0) {
+        Array.from(tenantIds).forEach(id => {
+          requests[`tenant_${id}`] = this.propertyTenantsService.getById(id);
+        });
+      }
+
+      // Execute all requests in parallel
+      if (Object.keys(requests).length > 0) {
+        forkJoin(requests).subscribe({
+          next: (results: any) => {
+            // Map results back to leases
+            this.leases.forEach((lease) => {
+              if (lease.unitId) {
+                const unit = results[`unit_${lease.unitId}`];
+                if (unit) lease.unitNumber = unit.unitNumber;
+              }
+              if (lease.propertyTenantId) {
+                const tenant = results[`tenant_${lease.propertyTenantId}`];
+                if (tenant) lease.propertyTenantName = tenant.name;
+              }
+            });
+          },
+          error: (err) => console.error('Error enriching leases:', err),
+        });
+      }
+    }
   }
 
   loadExpiringLeases(): void {
