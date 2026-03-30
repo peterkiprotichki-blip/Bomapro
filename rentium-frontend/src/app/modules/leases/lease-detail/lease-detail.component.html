@@ -263,38 +263,89 @@
     </div>
   </div>
 
+  <!-- Current Month Payment Breakdown -->
+  <div *ngIf="showCurrentMonthBreakdown && monthlyBreakdown.length > 0" class="mt-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl border-2 border-blue-300 dark:border-blue-700 p-4 animate-pulse">
+    <div class="flex items-start justify-between mb-3">
+      <div>
+        <h3 class="text-base font-semibold text-blue-900 dark:text-blue-200 flex items-center gap-2">
+          <i class="fas fa-calendar-check text-blue-600 dark:text-blue-400"></i>
+          Current Month Payment Breakdown - {{ monthlyBreakdown[0].month | date: 'MMMM yyyy' }}
+        </h3>
+      </div>
+      <button (click)="showCurrentMonthBreakdown = false" class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-xl">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="bg-white dark:bg-slate-800 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">Expected Rent</p>
+        <p class="text-lg font-bold text-gray-800 dark:text-gray-100">{{ monthlyBreakdown[0].expectedAmount | currency: (lease.currency || 'KES') }}</p>
+      </div>
+      <div class="bg-white dark:bg-slate-800 p-3 rounded-lg border border-green-200 dark:border-green-800">
+        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">Already Paid</p>
+        <p class="text-lg font-bold text-green-600 dark:text-green-400">{{ monthlyBreakdown[0].paidAmount | currency: (lease.currency || 'KES') }}</p>
+      </div>
+      <div class="bg-white dark:bg-slate-800 p-3 rounded-lg border border-orange-200 dark:border-orange-800">
+        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">Previous Balance</p>
+        <p class="text-lg font-bold" [ngClass]="monthlyBreakdown[0].previousBalance < 0 ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'">
+          {{ monthlyBreakdown[0].previousBalance | currency: (lease.currency || 'KES') }}
+        </p>
+      </div>
+      <div class="bg-white dark:bg-slate-800 p-3 rounded-lg border-2" [ngClass]="monthlyBreakdown[0].currentBalance <= 0 ? 'border-green-400 dark:border-green-600' : 'border-red-400 dark:border-red-600'">
+        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">Balance Due</p>
+        <p class="text-lg font-bold" [ngClass]="monthlyBreakdown[0].currentBalance > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">
+          {{ monthlyBreakdown[0].currentBalance | currency: (lease.currency || 'KES') }}
+        </p>
+      </div>
+    </div>
+    <div class="mt-3 text-sm text-blue-800 dark:text-blue-200">
+      <p *ngIf="monthlyBreakdown[0].currentBalance > 0">
+        <i class="fas fa-info-circle mr-2"></i>
+        <strong>{{ monthlyBreakdown[0].currentBalance | currency: (lease.currency || 'KES') }}</strong> remaining due for this month
+      </p>
+      <p *ngIf="monthlyBreakdown[0].currentBalance <= 0 && monthlyBreakdown[0].currentBalance < 0">
+        <i class="fas fa-check-circle mr-2"></i>
+        <strong>Payment complete!</strong> Overpayment of <strong>{{ (monthlyBreakdown[0].currentBalance * -1) | currency: (lease.currency || 'KES') }}</strong> will carry forward to next month
+      </p>
+      <p *ngIf="monthlyBreakdown[0].currentBalance === 0">
+        <i class="fas fa-check-circle mr-2"></i>
+        <strong>Payment balanced!</strong> Exactly matching this month's rent
+      </p>
+    </div>
+  </div>
+
   <!-- Payments Table -->
   <div class="mt-6 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
-    <div class="px-4 py-3 border-b border-gray-200 dark:border-slate-700">
-      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Payment History</h2>
+    <div class="px-3 py-2 border-b border-gray-200 dark:border-slate-700">
+      <h2 class="text-base font-semibold text-gray-800 dark:text-gray-100">Payment History</h2>
     </div>
     <div class="overflow-x-auto">
-      <table *ngIf="payments.length" class="w-full text-sm">
+      <table *ngIf="payments.length" class="w-full text-xs">
         <thead>
           <tr class="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50">
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Date</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Type</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Method</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Status</th>
-            <th class="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Amount</th>
-            <th class="text-center px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Actions</th>
+            <th class="text-left px-3 py-2 font-medium text-gray-600 dark:text-gray-300">Date</th>
+            <th class="text-left px-3 py-2 font-medium text-gray-600 dark:text-gray-300">Type</th>
+            <th class="text-left px-3 py-2 font-medium text-gray-600 dark:text-gray-300">Method</th>
+            <th class="text-left px-3 py-2 font-medium text-gray-600 dark:text-gray-300">Status</th>
+            <th class="text-right px-3 py-2 font-medium text-gray-600 dark:text-gray-300">Amount</th>
+            <th class="text-center px-3 py-2 font-medium text-gray-600 dark:text-gray-300">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let p of payments" class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
-            <td class="px-4 py-3 text-gray-800 dark:text-gray-100">{{ p.paymentDate | date: 'mediumDate' }}</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize">{{ p.paymentType }}</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize">{{ p.paymentMethod }}</td>
-            <td class="px-4 py-3">
-              <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="{
+            <td class="px-3 py-2 text-gray-800 dark:text-gray-100">{{ p.paymentDate | date: 'mediumDate' }}</td>
+            <td class="px-3 py-2 text-gray-600 dark:text-gray-300 capitalize">{{ p.paymentType }}</td>
+            <td class="px-3 py-2 text-gray-600 dark:text-gray-300 capitalize">{{ p.paymentMethod }}</td>
+            <td class="px-3 py-2">
+              <span class="px-2 py-0.5 rounded-full text-xs font-medium" [ngClass]="{
                 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': p.status === 'completed',
                 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400': p.status === 'pending',
                 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': p.status === 'failed'
               }">{{ p.status }}</span>
             </td>
-            <td class="px-4 py-3 text-right font-medium text-gray-800 dark:text-gray-100">{{ p.currency }} {{ p.amount | number }}</td>
-            <td class="px-4 py-3 text-center">
-              <div class="flex items-center justify-center gap-2">
+            <td class="px-3 py-2 text-right font-medium text-gray-800 dark:text-gray-100 text-xs">{{ p.currency }} {{ p.amount | number }}</td>
+            <td class="px-3 py-2 text-center">
+              <div class="flex items-center justify-center gap-1">
                 <button (click)="openEditPayment(p)" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 transition-colors">
                   <i class="fas fa-edit text-sm"></i>
                 </button>
@@ -307,7 +358,7 @@
         </tbody>
       </table>
     </div>
-    <div *ngIf="payments.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">No payments recorded</div>
+    <div *ngIf="payments.length === 0" class="text-center py-4 text-gray-500 dark:text-gray-400 text-xs">No payments recorded</div>
   </div>
 
   <!-- Terminate Modal -->

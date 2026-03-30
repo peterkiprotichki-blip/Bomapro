@@ -51,6 +51,7 @@ export class LeaseDetailComponent implements OnInit {
   monthlyBreakdown: MonthlyPaymentBreakdown[] = [];
   showEditPayment = false;
   editingPayment: any = null;
+  showCurrentMonthBreakdown = false;
   paymentMetrics: any = {
     totalCollected: 0,
     totalExpected: 0,
@@ -204,7 +205,6 @@ export class LeaseDetailComponent implements OnInit {
       propertyId: this.lease.propertyId,
       unitId: this.lease.unitId,
       propertyTenantId: this.lease.propertyTenantId,
-      leaseNumber: `${this.lease.leaseNumber}-RENEW`,
       status: 'draft',
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0],
@@ -258,11 +258,25 @@ export class LeaseDetailComponent implements OnInit {
   }
 
   onPaymentSaved(payment: Payment): void {
-    if (!this.payments) {
-      this.payments = [];
-    }
-    this.payments.unshift(payment);
-    alert('Payment recorded successfully!');
+    if (!this.lease) return;
+    
+    // Reload payments from server to get fresh data
+    this.paymentsService.getByLease(this.lease._id).subscribe({
+      next: (payments) => {
+        this.payments = payments || [];
+        this.calculatePaymentMetrics();
+        this.calculateDepositStatus();
+        this.identifyDelinquentPayments();
+        this.generateMonthlyBreakdown();
+        this.generateLeaseTimeline();
+        
+        // Show current month breakdown
+        this.showCurrentMonthBreakdown = true;
+        
+        alert('Payment recorded successfully! New balance calculated below.');
+      },
+      error: () => alert('Payment saved but failed to refresh data'),
+    });
   }
 
   canTerminate(): boolean {

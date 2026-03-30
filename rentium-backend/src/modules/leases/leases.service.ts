@@ -42,7 +42,8 @@ export class LeasesService {
       }
     }
 
-    const leaseNumber = `LS-${Date.now().toString(36).toUpperCase()}`;
+    // Generate sequential lease number: LS-0001, LS-0002, etc.
+    const leaseNumber = await this.generateLeaseNumber(tenantId);
     const createdLease = await this.leaseRepository.create({
       ...dto,
       tenantId,
@@ -254,5 +255,30 @@ export class LeasesService {
     ]);
     const expiringSoon = await this.leaseRepository.findExpiringSoon(tenantId, 30);
     return { total, active, expired, draft, expiringSoonCount: expiringSoon.length };
+  }
+
+  private async generateLeaseNumber(tenantId: string): Promise<string> {
+    try {
+      // Find all leases for this tenant, sorted by creation date (most recent first)
+      const leases = await this.leaseRepository.findByTenant(tenantId);
+      
+      let nextNumber = 1;
+      if (leases && leases.length > 0) {
+        const lastLease = leases[0]; // findByTenant returns sorted by createdAt desc
+        // Extract number from lease number format "LS-XXXX"
+        const match = lastLease.leaseNumber?.match(/LS-(\d+)/);
+        if (match && match[1]) {
+          const lastNumber = parseInt(match[1], 10);
+          nextNumber = lastNumber + 1;
+        }
+      }
+
+      // Format as LS-0001, LS-0002, etc.
+      return `LS-${String(nextNumber).padStart(4, '0')}`;
+    } catch (error) {
+      // Fallback to LS-0001 if there's an error
+      console.error('Error generating lease number:', error.message);
+      return `LS-0001`;
+    }
   }
 }
